@@ -75,7 +75,7 @@ export type FeatureVoteInput = z.infer<typeof featureVoteSchema>;
 
 export const priceVoteSchema = z.object({
   email: emailSchema.optional().or(z.literal("")),
-  planSelected: z.enum(["free", "essential", "pro"]),
+  planSelected: z.enum(["essential", "pro"]),
   billingPreference: z.enum(["monthly", "annual"]).optional(),
 });
 

@@ -8,13 +8,13 @@ import Comparison from "@/components/Comparison";
 export const metadata: Metadata = {
   title: "Pricing — Visual Closet Tracker",
   description:
-    "Three plans: Free, Essential, and Pro. Start free and upgrade for fit intelligence, weather, and calendar-aware styling.",
+    "Two plans: Essential and Pro. Every plan starts with a 7-day free trial — cancel any time and pay nothing.",
 };
 
 const FAQ = [
   {
-    q: "Is there really a free plan?",
-    a: "Yes. Free lets you catalogue up to 20 items, build a basic body profile, and get 3 outfit suggestions a week. No card required.",
+    q: "How does the free trial work?",
+    a: "Every plan starts with a 7-day free trial. You get full access from day one, and you can cancel any time during the trial — you won't be charged a cent.",
   },
   {
     q: "What does body-fit intelligence actually do?",
@@ -26,7 +26,7 @@ const FAQ = [
   },
   {
     q: "Am I being charged now?",
-    a: "No. This is an early-access phase. Choosing a plan simply registers your interest — no payment is taken.",
+    a: "No. This is an early-access phase. Choosing a plan simply registers your interest — no payment is taken, and no trial starts yet.",
   },
   {
     q: "How is my body data handled?",
@@ -45,8 +45,9 @@ export default function PricingPage() {
             Pay for it only when it earns its place.
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-muted">
-            Three plans, no hidden fees. Start free, then upgrade for fit
-            intelligence, weather, and calendar-aware styling.
+            Two plans, no hidden fees. Every plan starts with a 7-day free
+            trial — full access to fit intelligence, weather, and calendar-aware
+            styling. Cancel any time.
           </p>
         </section>
 

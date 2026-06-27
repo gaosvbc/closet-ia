@@ -128,9 +128,8 @@ function Dashboard({
   stats: NonNullable<Awaited<ReturnType<typeof getAdminStats>>>;
 }) {
   const totalPlanVotes = stats.planBreakdown.reduce((s, p) => s + p.count, 0);
-  const paidVotes = stats.planBreakdown
-    .filter((p) => p.plan !== "free")
-    .reduce((s, p) => s + p.count, 0);
+  const proVotes =
+    stats.planBreakdown.find((p) => p.plan === "pro")?.count ?? 0;
   const maxDay = Math.max(1, ...stats.signupsByDay.map((d) => d.count));
 
   return (
@@ -144,13 +143,13 @@ function Dashboard({
           sub={`${stats.onboarding.completes} of ${stats.onboarding.starts} started`}
         />
         <Stat
-          label="Paid plan votes"
-          value={
+          label="Plan preference votes"
+          value={totalPlanVotes}
+          sub={
             totalPlanVotes > 0
-              ? `${Math.round((paidVotes / totalPlanVotes) * 100)}%`
-              : "—"
+              ? `${Math.round((proVotes / totalPlanVotes) * 100)}% chose Pro`
+              : "Essential vs Pro"
           }
-          sub={`${paidVotes} of ${totalPlanVotes} chose Essential/Pro`}
         />
       </div>
 

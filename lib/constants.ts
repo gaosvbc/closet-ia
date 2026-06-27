@@ -5,7 +5,7 @@
 export type BillingPreference = "monthly" | "annual";
 
 export interface Plan {
-  key: "free" | "essential" | "pro";
+  key: "essential" | "pro";
   name: string;
   monthly: number;
   annual: number | null;
@@ -15,22 +15,11 @@ export interface Plan {
   mostPopular?: boolean;
 }
 
+// Every plan starts with a free trial — no free tier. Users can cancel during
+// the trial and pay nothing.
+export const TRIAL_DAYS = 7;
+
 export const PLANS: Plan[] = [
-  {
-    key: "free",
-    name: "Free",
-    monthly: 0,
-    annual: null,
-    annualSaving: null,
-    tagline: "Try the concept",
-    features: [
-      "Catalogue up to 20 items",
-      "3 outfit suggestions per week",
-      "Basic body profile",
-      "No weather or calendar",
-      "Watermark on outfit suggestions",
-    ],
-  },
   {
     key: "essential",
     name: "Essential",

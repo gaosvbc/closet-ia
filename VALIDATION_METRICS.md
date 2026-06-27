@@ -16,7 +16,11 @@ A clear green light. Proceed to build the real product.
 | --- | --- |
 | **Waitlist conversion rate** | ≥ **5%** of total visitors sign up |
 | **Onboarding completion rate** (step 1 → step 5) | ≥ **45%** |
-| **Plan votes** | ≥ **40%** select **Essential or Pro** |
+| **Trial intent** | ≥ **40%** indicate willingness to pay (survey Q4 "Yes"/"Maybe") or pick a plan |
+
+> There is no free tier: every plan starts with a 7-day free trial, cancellable
+> any time. So plan votes measure paid intent directly, and the premium signal
+> is the **Pro share** of plan votes.
 
 All three must be met. Two out of three is a weak signal, not a GO.
 
@@ -37,8 +41,10 @@ All of these are visible in the `/admin` dashboard once Supabase is connected.
 - **Conversion 2–5%** → test a different headline or sharpen the demo.
 - **Body step abandoned > 60%** → measurements feel too invasive; simplify the
   step, soften the consent copy, or make it more clearly optional.
-- **Mostly Free votes** → strengthen the value proposition of the paid features
-  (fit intelligence, calendar styling, cost-per-wear).
+- **Mostly Essential (few Pro) votes** → the premium features (calendar,
+  cost-per-wear, packing) aren't landing; strengthen the Pro framing.
+- **Many "No" on willingness to pay** → with no free tier, the trial framing or
+  price point may be the blocker; test a longer trial or clearer trial messaging.
 
 ## NO-GO
 

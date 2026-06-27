@@ -177,7 +177,7 @@ export async function getAdminStats(): Promise<AdminStats | null> {
     if (row.billing_preference === "annual") annual += 1;
     else if (row.billing_preference === "monthly") monthly += 1;
   }
-  const planBreakdown = ["free", "essential", "pro"].map((plan) => ({
+  const planBreakdown = ["essential", "pro"].map((plan) => ({
     plan,
     count: planMap.get(plan) ?? 0,
   }));

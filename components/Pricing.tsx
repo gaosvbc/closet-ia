@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Check } from "lucide-react";
-import { PLANS, type BillingPreference } from "@/lib/constants";
+import { PLANS, TRIAL_DAYS, type BillingPreference } from "@/lib/constants";
 
 // Three plans side by side on desktop, stacked on mobile. Pro is "Most
 // Popular". Annual billing is selected by default and savings are shown
@@ -43,8 +43,8 @@ export default function Pricing({ heading = true }: { heading?: boolean }) {
             Premium, not precious.
           </h2>
           <p className="mt-4 text-muted">
-            Start free. Upgrade when fit intelligence and calendar styling earn
-            their place.
+            Every plan starts with a {TRIAL_DAYS}-day free trial. Cancel any
+            time during the trial and pay nothing.
           </p>
         </div>
       )}
@@ -65,7 +65,7 @@ export default function Pricing({ heading = true }: { heading?: boolean }) {
         </BillingButton>
       </div>
 
-      <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="mx-auto mt-12 grid max-w-3xl grid-cols-1 gap-6 md:grid-cols-2">
         {PLANS.map((plan) => {
           const showAnnual = billing === "annual" && plan.annual !== null;
           const price = showAnnual ? plan.annual : plan.monthly;
@@ -96,7 +96,7 @@ export default function Pricing({ heading = true }: { heading?: boolean }) {
                 </span>
               </div>
 
-              {plan.annual !== null ? (
+              {plan.annual !== null && (
                 <p className="mt-2 text-xs">
                   {showAnnual ? (
                     <span className="accent-text font-medium">
@@ -111,9 +111,11 @@ export default function Pricing({ heading = true }: { heading?: boolean }) {
                     </span>
                   )}
                 </p>
-              ) : (
-                <p className="mt-2 text-xs text-muted">Free forever</p>
               )}
+
+              <p className="mt-3 text-xs text-muted">
+                Starts with a {TRIAL_DAYS}-day free trial · cancel any time
+              </p>
 
               <ul className="mt-8 flex-1 space-y-3">
                 {plan.features.map((feature) => (
@@ -140,9 +142,7 @@ export default function Pricing({ heading = true }: { heading?: boolean }) {
                   ? "Noted — thank you"
                   : pending === plan.key
                     ? "Saving…"
-                    : plan.key === "free"
-                      ? "Start free"
-                      : `Choose ${plan.name}`}
+                    : `Start ${TRIAL_DAYS}-day free trial`}
               </button>
             </div>
           );

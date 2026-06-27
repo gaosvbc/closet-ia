@@ -212,8 +212,8 @@ export default function HomePage() {
               Dressed for your body. Your day. Your life.
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-muted">
-              Join early access and be first in when it opens. It&apos;s free to
-              start.
+              Join early access and be first in when it opens. Every plan starts
+              with a 7-day free trial — cancel any time.
             </p>
             <div className="mt-8">
               <Link href="/onboarding" className="btn btn-primary">
