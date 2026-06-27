@@ -75,11 +75,11 @@ export default function Pricing({ heading = true }: { heading?: boolean }) {
             <div
               key={plan.key}
               className={`panel relative flex flex-col p-8 ${
-                plan.mostPopular ? "border-ink" : ""
+                plan.mostPopular ? "border-2 border-accent bg-white" : ""
               }`}
             >
               {plan.mostPopular && (
-                <span className="absolute -top-3 left-8 bg-ink px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-white">
+                <span className="absolute -top-3 left-8 bg-accent px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-white">
                   Most Popular
                 </span>
               )}
@@ -172,8 +172,8 @@ function BillingButton({
       onClick={onClick}
       className={`rounded border px-4 py-2 text-sm transition-colors ${
         active
-          ? "border-ink bg-ink text-white"
-          : "border-line bg-white text-muted hover:text-ink"
+          ? "border-accent bg-accent text-white"
+          : "border-line bg-surface text-muted hover:text-ink"
       }`}
     >
       {children}

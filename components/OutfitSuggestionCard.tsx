@@ -21,7 +21,7 @@ export default function OutfitSuggestionCard({
   actions?: React.ReactNode;
 }) {
   return (
-    <div className="panel p-6">
+    <div className="panel border-l-[3px] border-l-accent bg-white p-6">
       <div className="flex items-center justify-between">
         <span className="eyebrow">Today&apos;s suggestion</span>
         {saved && (
@@ -58,7 +58,7 @@ export default function OutfitSuggestionCard({
 function Badge({ children }: { children: React.ReactNode }) {
   return (
     <span className="inline-flex items-center gap-1.5 rounded border border-line px-2.5 py-1 text-xs text-ink">
-      <Check strokeWidth={2} className="h-3 w-3 text-success" aria-hidden />
+      <Check strokeWidth={2} className="h-3 w-3 text-accent" aria-hidden />
       {children}
     </span>
   );

@@ -192,7 +192,7 @@ export default function WaitlistForm() {
       </div>
 
       {formError && (
-        <p className="rounded border border-line bg-white px-4 py-3 text-sm text-error">
+        <p className="rounded-input border border-line bg-surface px-4 py-3 text-sm text-error">
           {formError}
         </p>
       )}

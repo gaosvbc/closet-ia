@@ -77,10 +77,10 @@ export default function HomePage() {
           <div className="grid items-center gap-16 lg:grid-cols-2">
             <div className="animate-fade-up">
               <span className="eyebrow">AI wardrobe assistant</span>
-              <h1 className="mt-5 text-4xl leading-[1.08] md:text-6xl">
+              <h1 className="mt-5 text-4xl leading-[1.08] md:text-5xl">
                 Dressed for your body.
                 <br />
-                Your day. Your life.
+                <span className="italic accent-text">Your day. Your life.</span>
               </h1>
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
                 The AI wardrobe assistant that knows your measurements, your
@@ -116,7 +116,7 @@ export default function HomePage() {
         </section>
 
         {/* Problem */}
-        <section className="border-y border-line bg-[#FBFAF8]">
+        <section className="border-y border-line bg-surface">
           <div className="section py-16">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-2xl leading-snug md:text-3xl">
@@ -206,7 +206,7 @@ export default function HomePage() {
         <Pricing />
 
         {/* Final CTA */}
-        <section className="border-t border-line bg-[#FBFAF8]">
+        <section className="border-t border-line bg-surface">
           <div className="section py-20 text-center">
             <h2 className="mx-auto max-w-2xl text-3xl md:text-4xl">
               Dressed for your body. Your day. Your life.

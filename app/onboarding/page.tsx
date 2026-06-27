@@ -262,7 +262,7 @@ export default function OnboardingPage() {
             />
 
             {/* Consent */}
-            <label className="flex items-start gap-3 rounded border border-line bg-[#FBFAF8] p-4">
+            <label className="flex items-start gap-3 rounded-input border border-line bg-surface p-4">
               <input
                 type="checkbox"
                 checked={consentBody}
@@ -408,7 +408,7 @@ function Shell({
         {/* Progress bar */}
         <div className="mt-4 h-1 w-full bg-line">
           <div
-            className="h-1 bg-ink transition-all duration-300"
+            className="h-1 bg-accent transition-all duration-300"
             style={{ width: `${pct}%` }}
           />
         </div>
@@ -483,8 +483,8 @@ function UnitToggle({
           onClick={() => onChange(opt)}
           className={`rounded border px-2.5 py-1 text-xs transition-colors ${
             value === opt
-              ? "border-ink bg-ink text-white"
-              : "border-line bg-white text-muted hover:text-ink"
+              ? "border-accent bg-accent text-white"
+              : "border-line bg-surface text-muted hover:text-ink"
           }`}
         >
           {labels[opt]}
@@ -520,8 +520,8 @@ function ChoiceGroup({
             onClick={() => onChange(value === opt ? "" : opt)}
             className={`rounded border px-3 py-3 text-sm transition-colors ${
               value === opt
-                ? "border-ink bg-ink text-white"
-                : "border-line bg-white text-ink hover:border-ink"
+                ? "border-accent bg-accent text-white"
+                : "border-line bg-surface text-ink hover:border-ink"
             }`}
           >
             {opt}

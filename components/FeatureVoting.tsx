@@ -73,7 +73,7 @@ export default function FeatureVoting() {
               disabled={pending === feature.key || hasVoted}
               aria-pressed={hasVoted}
               className={`panel flex flex-col items-start gap-3 p-6 text-left transition-colors ${
-                hasVoted ? "border-ink" : "hover:border-ink"
+                hasVoted ? "border-accent" : "hover:border-ink"
               }`}
             >
               <Icon strokeWidth={1} className="h-6 w-6 text-ink" aria-hidden />

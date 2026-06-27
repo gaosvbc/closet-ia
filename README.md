@@ -40,9 +40,10 @@ adding environment variables.
 - **Security-first.** Zod validation everywhere, a honeypot on forms,
   consent-gated body data, RLS on every table, and the service-role key never
   touches the browser.
-- **Architectural, minimal design.** Pure white, near-black text, a single warm
-  stone accent, Playfair Display + Inter, 2px radii, no shadows, no gradients.
-  Inspired by COS, The Row, Arket, and Totême.
+- **Editorial, minimal design.** Warm ivory backgrounds (`#FBFAF7` / `#F7F4EF`),
+  near-black text, a single wine-red accent (`#8B1524`) reserved for CTAs and
+  active states, Cormorant Garamond headings + Inter UI, pill buttons and 12px
+  cards, no shadows or gradients.
 
 ## Tech stack
 

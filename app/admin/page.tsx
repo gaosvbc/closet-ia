@@ -387,7 +387,7 @@ function SetupCard({
 
 function CodeBlock({ children }: { children: string }) {
   return (
-    <pre className="overflow-x-auto rounded border border-line bg-[#FAFAFA] p-4 text-xs leading-relaxed text-ink">
+    <pre className="overflow-x-auto rounded-input border border-line bg-surface p-4 text-xs leading-relaxed text-ink">
       <code>{children}</code>
     </pre>
   );

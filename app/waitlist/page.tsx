@@ -21,7 +21,7 @@ export default function WaitlistPage() {
             Be first in when early access opens. Answer a few quick questions to
             help us build the right thing — every answer is optional. Want the
             full setup?{" "}
-            <a href="/onboarding" className="text-ink underline underline-offset-2">
+            <a href="/onboarding" className="text-accent hover:text-accent-dark">
               Build your style profile
             </a>
             .

@@ -43,13 +43,13 @@ export default function Comparison() {
                   <td
                     key={i}
                     className={`px-4 py-4 text-center ${
-                      i === 0 ? "bg-[#FBFAF8]" : ""
+                      i === 0 ? "bg-surface" : ""
                     }`}
                   >
                     {val ? (
                       <Check
                         strokeWidth={1.5}
-                        className="mx-auto h-4 w-4 text-success"
+                        className="mx-auto h-4 w-4 text-accent"
                         aria-label="Yes"
                       />
                     ) : (
