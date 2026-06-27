@@ -4,7 +4,7 @@ import { badRequest, firstZodMessage, ok, readJson, serverError } from "@/lib/ap
 
 export const runtime = "nodejs";
 
-// Captures a waitlist lead and, when present, the onboarding survey response.
+// Captures a waitlist lead and, when present, the embedded survey response.
 export async function POST(request: Request) {
   const body = await readJson(request);
   if (!body) return badRequest();
@@ -25,10 +25,6 @@ export async function POST(request: Request) {
     const leadResult = await insertRow("leads", {
       email: data.email,
       first_name: data.firstName || null,
-      wardrobe_size: data.wardrobeSize || null,
-      current_solution: data.currentSolution || null,
-      pain_level: data.q1MorningStress ?? null,
-      gender_target: "all",
       source: "waitlist",
       consent_email: data.consentEmail,
     });
@@ -37,26 +33,19 @@ export async function POST(request: Request) {
       return serverError();
     }
 
-    // Persist the survey if any answer was provided.
     const hasSurvey =
-      data.q1MorningStress !== undefined ||
-      data.q2WardrobePieces !== undefined ||
-      data.q3MinutesDeciding !== undefined ||
+      data.q1MinutesDeciding !== undefined ||
+      data.q2WardrobeSize !== undefined ||
+      data.q3TriedAppBefore !== undefined ||
       data.q4WouldPay !== undefined;
 
     if (hasSurvey) {
       await insertRow("survey_responses", {
         lead_id: leadResult.mode === "supabase" ? leadResult.id ?? null : null,
-        q1_morning_stress:
-          data.q1MorningStress !== undefined
-            ? String(data.q1MorningStress)
-            : null,
-        q2_wardrobe_pieces: data.q2WardrobePieces ?? null,
-        q3_minutes_deciding: data.q3MinutesDeciding ?? null,
-        q4_would_pay:
-          data.q4WouldPay === undefined
-            ? null
-            : data.q4WouldPay === "yes",
+        q1_minutes_deciding: data.q1MinutesDeciding ?? null,
+        q2_wardrobe_size: data.q2WardrobeSize ?? null,
+        q3_tried_app_before: data.q3TriedAppBefore ?? null,
+        q4_would_pay: data.q4WouldPay ?? null,
       });
     }
 

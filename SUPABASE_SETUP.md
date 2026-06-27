@@ -2,8 +2,8 @@
 
 Visual Closet Tracker runs **fully without Supabase** in fallback mode (every
 write is logged to the server console). Follow this guide to connect a real
-backend so signups, votes, and events persist and the `/admin` dashboard shows
-live data.
+backend so signups, body profiles, votes, and events persist and the `/admin`
+dashboard shows live data.
 
 > ⏱ Takes about 10 minutes.
 
@@ -32,8 +32,6 @@ In the Supabase dashboard go to **Project Settings → API** and copy:
 
 ## 3. Configure environment variables
 
-Copy the example file and fill in the values:
-
 ```bash
 cp .env.example .env.local
 ```
@@ -50,13 +48,11 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 ## 4. Run the migration
 
-You have two options.
-
 ### Option A — SQL editor (no CLI)
 
 1. Open **SQL Editor** in the Supabase dashboard.
 2. Paste the contents of
-   [`supabase/migrations/001_vct_validation.sql`](./supabase/migrations/001_vct_validation.sql).
+   [`supabase/migrations/001_vct_v2.sql`](./supabase/migrations/001_vct_v2.sql).
 3. Click **Run**.
 
 ### Option B — Supabase CLI
@@ -67,51 +63,101 @@ supabase link --project-ref YOUR-PROJECT-REF
 supabase db push
 ```
 
-## 5. Verify Row Level Security
+## 5. Tables created
 
-The migration creates five tables and enables RLS on all of them:
+`leads`, `body_profiles`, `survey_responses`, `feature_votes`, `price_votes`,
+`page_events`. RLS is enabled on all six.
 
-`leads`, `survey_responses`, `feature_votes`, `price_votes`, `page_events`.
+## 6. Row Level Security & policies
 
-### Policies created
-
-For **every** table there is exactly one policy:
-
-```sql
-create policy "anon_insert_<table>"
-  on public.<table> for insert to anon with check (true);
-```
-
-This means:
+### The model
 
 - ✅ **Anonymous INSERT is allowed** — the public site can submit signups,
-  votes, and events using the anon key.
-- 🚫 **Anonymous SELECT / UPDATE / DELETE are blocked** — because RLS is
-  enabled and there is no permissive policy for those actions, the anon role
-  gets zero rows back. Nobody can read your leads from the browser.
+  profiles, votes, and events using the anon key.
+- 🚫 **Anonymous SELECT / UPDATE / DELETE are blocked** — RLS is enabled and
+  there is no permissive policy for those actions, so the anon role gets zero
+  rows back. Nobody can read your leads or body profiles from the browser.
 - 🔓 **The `service_role` bypasses RLS entirely** — so the server-side admin
   dashboard (`/admin`) can still read aggregates and recent leads.
 
-### Quick check
+### Policies
 
-In the SQL editor, confirm RLS is on:
+Every table gets one anon INSERT policy, e.g.:
+
+```sql
+create policy "anon_insert_leads"
+  on public.leads for insert to anon with check (true);
+```
+
+**`body_profiles` is stricter.** Its insert policy enforces consent:
+
+```sql
+create policy "anon_insert_body_profiles_with_consent"
+  on public.body_profiles for insert to anon
+  with check (
+    consent_body_data = true
+    or (height_cm is null and weight_kg is null)
+  );
+```
+
+This means a row containing height or weight is **rejected** unless
+`consent_body_data = true`. The same rule is also a table-level `CHECK`
+constraint (`body_measurements_require_consent`), so even the service role
+cannot store measurements without recording consent. Defense in depth.
+
+### Quick check
 
 ```sql
 select tablename, rowsecurity
 from pg_tables
 where schemaname = 'public'
-  and tablename in ('leads','survey_responses','feature_votes','price_votes','page_events');
+  and tablename in (
+    'leads','body_profiles','survey_responses',
+    'feature_votes','price_votes','page_events'
+  );
 ```
 
 Every row should show `rowsecurity = true`.
 
-## 6. Test it
+---
+
+## 7. Body data & encryption at rest
+
+Height and weight are sensitive. This project protects them in layers:
+
+1. **Consent first.** The app only sends measurements when the user ticks the
+   explicit consent box during onboarding. The API route drops height/weight if
+   consent is absent, and the DB rejects them anyway (constraint + RLS).
+2. **No anonymous reads.** RLS guarantees measurements can never be read with
+   the anon key — only the server-side service role can read them, and only for
+   the admin dashboard (which shows distributions, not individual measurements).
+3. **Encrypted at rest by default.** Supabase's managed Postgres encrypts all
+   data at rest with AES-256. No configuration required.
+
+### Optional hardening — column-level encryption
+
+For an extra layer beyond platform encryption, you can encrypt height/weight at
+the column level with `pgcrypto` and a key held outside the database (e.g. in
+Supabase Vault). Sketch:
+
+```sql
+-- Store an encrypted text column instead of plain numerics, and decrypt
+-- server-side with a key from Vault. This trades off the ability to aggregate
+-- measurements in SQL, so weigh it against your analytics needs.
+-- See: https://supabase.com/docs/guides/database/vault
+```
+
+This MVP relies on consent-gating + RLS + platform encryption by default, which
+is appropriate for validation. Add column-level encryption before collecting
+measurements at scale.
+
+## 8. Test it
 
 1. Restart the dev server: `npm run dev`.
-2. Submit the waitlist form on `/waitlist`.
-3. In Supabase, open **Table Editor → leads** and confirm the row appears.
-4. Visit `/admin`, sign in with `ADMIN_PASSWORD`, and confirm the metrics
-   populate.
+2. Complete `/onboarding` (tick the consent box) or submit `/waitlist`.
+3. In Supabase, open **Table Editor → leads** / **body_profiles** and confirm
+   rows appear.
+4. Visit `/admin`, sign in with `ADMIN_PASSWORD`, and confirm metrics populate.
 
 ---
 
@@ -122,7 +168,7 @@ Browser form ──POST──▶ Next.js API route ──service role──▶ S
                          (server only)                     row inserted
 ```
 
-All inserts go through server-side API routes (`/api/leads`,
+All inserts go through server-side API routes (`/api/leads`, `/api/onboarding`,
 `/api/feature-vote`, `/api/price-vote`, `/api/event`) using the service-role
 client. The anon INSERT policies exist as defense-in-depth and to document the
 intended access model.
@@ -133,5 +179,6 @@ intended access model.
 | --- | --- |
 | Forms succeed but nothing in tables | Env vars missing → app is in fallback mode. Check `.env.local` and restart. |
 | `/admin` shows "Connect Supabase" | `SUPABASE_SERVICE_ROLE_KEY` or `NEXT_PUBLIC_SUPABASE_URL` not set. |
-| Inserts rejected | Migration not run, or RLS insert policy missing. Re-run the migration. |
+| Body profile inserts rejected | Measurements present without `consent_body_data = true`. Expected behaviour. |
+| Inserts rejected generally | Migration not run, or RLS insert policy missing. Re-run the migration. |
 | `/admin` says "not configured" | `ADMIN_PASSWORD` not set. |

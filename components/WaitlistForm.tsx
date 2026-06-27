@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { Check } from "lucide-react";
 import { waitlistSchema } from "@/lib/validation";
-import { SURVEY_QUESTIONS } from "@/lib/constants";
+import { SURVEY } from "@/lib/constants";
 
-// Waitlist capture + 4-question onboarding survey in one form. Validated with
-// Zod on the client for instant feedback, and again on the server. Includes a
-// honeypot field ("company") that real users never see. On success it swaps to
-// an inline confirmation — the same copy whether Supabase is connected or in
-// fallback mode, so the experience never reveals backend state.
+// Waitlist capture + 4-question survey in one form. Validated with Zod on the
+// client for instant feedback, and again on the server. Includes a honeypot
+// field ("company") that real users never see. On success it swaps to an inline
+// confirmation — identical copy whether Supabase is connected or in fallback
+// mode, so the experience never reveals backend state.
 
 type FieldErrors = Partial<Record<string, string>>;
 
@@ -21,14 +21,15 @@ export default function WaitlistForm() {
 
   if (submitted) {
     return (
-      <div className="card p-10 text-center">
+      <div className="panel p-10 text-center">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded border border-line">
           <Check strokeWidth={1.5} className="h-6 w-6 accent-text" />
         </div>
         <h2 className="mt-6 text-2xl">You&apos;re on the list.</h2>
         <p className="mx-auto mt-3 max-w-sm text-muted">
-          We&apos;ll be in touch soon. Thank you for helping shape your
-          wardrobe&apos;s smartest assistant.
+          We&apos;ll be in touch. Thank you for helping shape the wardrobe
+          assistant that finally accounts for your body, your day, and your
+          clothes.
         </p>
       </div>
     );
@@ -45,20 +46,11 @@ export default function WaitlistForm() {
     const raw = {
       email: String(fd.get("email") ?? ""),
       firstName: String(fd.get("firstName") ?? ""),
-      // The wardrobe-size range doubles as the lead's wardrobe_size enum.
-      wardrobeSize: (fd.get("q2WardrobePieces") as string) || undefined,
-      currentSolution: String(fd.get("currentSolution") ?? ""),
       consentEmail: fd.get("consentEmail") === "on",
       company: String(fd.get("company") ?? ""), // honeypot
-      q1MorningStress: fd.get("q1MorningStress")
-        ? Number(fd.get("q1MorningStress"))
-        : undefined,
-      q2WardrobePieces: fd.get("q2WardrobePieces")
-        ? mapWardrobePieces(String(fd.get("q2WardrobePieces")))
-        : undefined,
-      q3MinutesDeciding: fd.get("q3MinutesDeciding")
-        ? mapMinutes(String(fd.get("q3MinutesDeciding")))
-        : undefined,
+      q1MinutesDeciding: (fd.get("q1MinutesDeciding") as string) || undefined,
+      q2WardrobeSize: (fd.get("q2WardrobeSize") as string) || undefined,
+      q3TriedAppBefore: (fd.get("q3TriedAppBefore") as string) || undefined,
       q4WouldPay: (fd.get("q4WouldPay") as string) || undefined,
     };
 
@@ -99,7 +91,6 @@ export default function WaitlistForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-8" noValidate>
-      {/* Contact */}
       <div className="space-y-5">
         <div>
           <label htmlFor="email" className="field-label">
@@ -116,7 +107,7 @@ export default function WaitlistForm() {
             aria-invalid={Boolean(errors.email)}
           />
           {errors.email && (
-            <p className="mt-1.5 text-xs text-ink">{errors.email}</p>
+            <p className="mt-1.5 text-xs text-error">{errors.email}</p>
           )}
         </div>
 
@@ -135,7 +126,7 @@ export default function WaitlistForm() {
         </div>
       </div>
 
-      {/* Honeypot — visually hidden, off-screen, not focusable. */}
+      {/* Honeypot — off-screen, not focusable. */}
       <div aria-hidden className="absolute left-[-9999px] top-[-9999px]">
         <label htmlFor="company">Company (leave this empty)</label>
         <input
@@ -147,99 +138,39 @@ export default function WaitlistForm() {
         />
       </div>
 
-      {/* Onboarding survey */}
       <fieldset className="space-y-6 border-t border-line pt-8">
         <legend className="eyebrow">A few quick questions (optional)</legend>
 
+        <SelectQuestion
+          name="q1MinutesDeciding"
+          label={`1. ${SURVEY.q1.label}`}
+          options={SURVEY.q1.options}
+          suffix=" minutes"
+        />
+        <SelectQuestion
+          name="q2WardrobeSize"
+          label={`2. ${SURVEY.q2.label}`}
+          options={SURVEY.q2.options}
+          suffix=" items"
+        />
+        <SelectQuestion
+          name="q3TriedAppBefore"
+          label={`3. ${SURVEY.q3.label}`}
+          options={SURVEY.q3.options}
+        />
+
         <div>
-          <span className="field-label">
-            1. How stressful is getting dressed in the morning?
-          </span>
+          <span className="field-label">4. {SURVEY.q4.label}</span>
           <div className="mt-3 flex gap-2">
-            {[1, 2, 3, 4, 5].map((n) => (
-              <label
-                key={n}
-                className="flex-1 cursor-pointer rounded border border-line py-2.5 text-center text-sm text-ink transition-colors has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-white"
-              >
-                <input
-                  type="radio"
-                  name="q1MorningStress"
-                  value={n}
-                  className="sr-only"
-                />
-                {n}
-              </label>
-            ))}
-          </div>
-          <div className="mt-2 flex justify-between text-xs text-muted">
-            <span>Effortless</span>
-            <span>Very stressful</span>
-          </div>
-        </div>
-
-        <div>
-          <label htmlFor="q2WardrobePieces" className="field-label">
-            2. Roughly how many items are in your wardrobe?
-          </label>
-          <select
-            id="q2WardrobePieces"
-            name="q2WardrobePieces"
-            className="field-input"
-            defaultValue=""
-          >
-            <option value="" disabled>
-              Select a range
-            </option>
-            {SURVEY_QUESTIONS.wardrobeSizeOptions.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt} items
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label htmlFor="q3MinutesDeciding" className="field-label">
-            3. How many minutes do you spend deciding what to wear?
-          </label>
-          <select
-            id="q3MinutesDeciding"
-            name="q3MinutesDeciding"
-            className="field-input"
-            defaultValue=""
-          >
-            <option value="" disabled>
-              Select a range
-            </option>
-            {SURVEY_QUESTIONS.minutesOptions.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt} minutes
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <span className="field-label">
-            4. Would you pay for an app that solved this?
-          </span>
-          <div className="mt-3 flex gap-2">
-            {[
-              { value: "yes", label: "Yes" },
-              { value: "maybe", label: "Maybe" },
-              { value: "no", label: "No" },
-            ].map((opt) => (
-              <label
-                key={opt.value}
-                className="flex-1 cursor-pointer rounded border border-line py-2.5 text-center text-sm text-ink transition-colors has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-white"
-              >
+            {SURVEY.q4.options.map((opt) => (
+              <label key={opt} className="choice flex-1">
                 <input
                   type="radio"
                   name="q4WouldPay"
-                  value={opt.value}
+                  value={opt}
                   className="sr-only"
                 />
-                {opt.label}
+                {opt}
               </label>
             ))}
           </div>
@@ -255,13 +186,13 @@ export default function WaitlistForm() {
           className="mt-1 h-4 w-4 rounded-sm border-line accent-ink"
         />
         <label htmlFor="consentEmail" className="text-sm text-muted">
-          It&apos;s fine to email me occasional updates about the launch. No
+          It&apos;s fine to email me occasional updates about early access. No
           spam, unsubscribe any time.
         </label>
       </div>
 
       {formError && (
-        <p className="rounded border border-line bg-white px-4 py-3 text-sm text-ink">
+        <p className="rounded border border-line bg-white px-4 py-3 text-sm text-error">
           {formError}
         </p>
       )}
@@ -271,43 +202,43 @@ export default function WaitlistForm() {
         disabled={submitting}
         className="btn btn-primary w-full"
       >
-        {submitting ? "Joining…" : "Join the waitlist — it's free"}
+        {submitting ? "Joining…" : "Get early access — free"}
       </button>
 
       <p className="text-center text-xs text-muted">
-        We never store images, body data, or location beyond an optional city
-        name.
+        We never store images or body data without your explicit consent.
       </p>
     </form>
   );
 }
 
-function mapWardrobePieces(range: string): number {
-  switch (range) {
-    case "<20":
-      return 15;
-    case "20-50":
-      return 35;
-    case "50-100":
-      return 75;
-    case "100+":
-      return 120;
-    default:
-      return 0;
-  }
-}
-
-function mapMinutes(range: string): number {
-  switch (range) {
-    case "<5":
-      return 4;
-    case "5-10":
-      return 8;
-    case "10-20":
-      return 15;
-    case "20+":
-      return 25;
-    default:
-      return 0;
-  }
+function SelectQuestion({
+  name,
+  label,
+  options,
+  suffix = "",
+}: {
+  name: string;
+  label: string;
+  options: readonly string[];
+  suffix?: string;
+}) {
+  return (
+    <div>
+      <label htmlFor={name} className="field-label">
+        {label}
+      </label>
+      <select id={name} name={name} className="field-input" defaultValue="">
+        <option value="" disabled>
+          Select an option
+        </option>
+        {options.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt}
+            {suffix}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
 }

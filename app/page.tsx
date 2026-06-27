@@ -1,43 +1,69 @@
 import Link from "next/link";
-import { ArrowRight, Camera, Sparkles, Sun, LineChart } from "lucide-react";
+import {
+  ArrowRight,
+  PersonStanding,
+  CalendarClock,
+  Camera,
+} from "lucide-react";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import GarmentCard from "@/components/GarmentCard";
 import Pricing from "@/components/Pricing";
 import FeatureVoting from "@/components/FeatureVoting";
+import Comparison from "@/components/Comparison";
 import { DEMO_WARDROBE } from "@/lib/constants";
+
+const DIFFERENCE = [
+  {
+    icon: PersonStanding,
+    eyebrow: "Your body",
+    body: "We ask for your height, weight, and body type. So every outfit suggestion actually fits — not just looks good on someone else.",
+  },
+  {
+    icon: CalendarClock,
+    eyebrow: "Your day",
+    body: "Connect your calendar. We read what's ahead — a client meeting, a dinner, a gym session — and dress you accordingly.",
+  },
+  {
+    icon: Camera,
+    eyebrow: "Your wardrobe",
+    body: "Photograph your clothes once. We catalogue everything. You never think about getting dressed again.",
+  },
+];
 
 const HOW_IT_WORKS = [
   {
-    icon: Camera,
-    title: "Photograph your wardrobe once",
-    body: "Takes less than 10 minutes. Do it on a quiet Sunday and never again.",
+    title: "Build your body profile",
+    body: "Height, weight, fit preferences. About 2 minutes.",
   },
   {
-    icon: Sparkles,
-    title: "It catalogues everything automatically",
-    body: "Every piece, sorted and ready — no spreadsheets, no manual tagging.",
+    title: "Photograph your wardrobe",
+    body: "AI catalogues everything automatically. Under 10 minutes.",
   },
   {
-    icon: Sun,
-    title: "Get your outfit every morning",
-    body: "Your ideal look for today's weather and your agenda, before coffee.",
+    title: "Connect your calendar",
+    body: "Optional, but powerful. We dress you for what's ahead.",
   },
   {
-    icon: LineChart,
-    title: "See what you actually wear",
-    body: "Track what you reach for, what you never touch, and what it costs you.",
+    title: "Get dressed every morning",
+    body: "Your perfect outfit, fit-checked for your body and planned for your day.",
   },
 ];
 
 const SOCIAL_PROOF = [
   {
-    quote: "Finally, an app that uses my actual clothes.",
-    attribution: "Early tester, London",
+    quote:
+      "Finally an app that accounts for the fact I'm 6'3. The suggestions actually make sense.",
+    attribution: "Early tester, Berlin",
   },
   {
     quote: "I stopped buying things I already own.",
-    attribution: "Beta user, New York",
+    attribution: "Beta user, London",
+  },
+  {
+    quote:
+      "The calendar feature alone is worth it. I never think about Monday morning anymore.",
+    attribution: "Early tester, Barcelona",
   },
 ];
 
@@ -49,22 +75,24 @@ export default function HomePage() {
         {/* Hero */}
         <section className="section pb-12 pt-20 md:pt-28">
           <div className="grid items-center gap-16 lg:grid-cols-2">
-            <div>
+            <div className="animate-fade-up">
               <span className="eyebrow">AI wardrobe assistant</span>
-              <h1 className="mt-5 text-4xl leading-[1.1] md:text-6xl">
-                Your wardrobe is full. Your mornings shouldn&apos;t be hard.
+              <h1 className="mt-5 text-4xl leading-[1.08] md:text-6xl">
+                Dressed for your body.
+                <br />
+                Your day. Your life.
               </h1>
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
-                Visual Closet Tracker photographs your clothes once and suggests
-                the perfect outfit every morning — based on the weather and
-                what&apos;s on your calendar.
+                The AI wardrobe assistant that knows your measurements, your
+                calendar, and your clothes — and puts them together every
+                morning without you lifting a finger.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link href="/waitlist" className="btn btn-primary">
-                  Join the waitlist — it&apos;s free
+                <Link href="/onboarding" className="btn btn-primary">
+                  Get early access — free
                 </Link>
-                <Link href="/demo" className="btn btn-outline">
-                  See how it works
+                <Link href="/demo" className="btn btn-ghost">
+                  See it in action
                   <ArrowRight strokeWidth={1.5} className="h-4 w-4" />
                 </Link>
               </div>
@@ -80,31 +108,47 @@ export default function HomePage() {
                   key={item.label}
                   label={item.label}
                   category={item.category}
+                  worn={item.worn}
                 />
               ))}
             </div>
           </div>
         </section>
 
-        {/* Problem block */}
-        <section className="border-y border-line bg-[#FCFCFC]">
+        {/* Problem */}
+        <section className="border-y border-line bg-[#FBFAF8]">
           <div className="section py-16">
             <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-2xl md:text-3xl">
-                Not because you have nothing to wear.
+              <h2 className="text-2xl leading-snug md:text-3xl">
+                You have plenty to wear. And yet — nothing feels right.
               </h2>
               <p className="mt-5 text-lg leading-relaxed text-muted">
-                Every morning, the same thing. Open the wardrobe. Stare. Close
-                it. Put on the same three things again. Not because you have
-                nothing to wear — because you can&apos;t{" "}
-                <span className="text-ink">see</span> what you have.
+                You open your wardrobe every morning. You have plenty to wear.
+                And yet somehow — nothing feels right. Not because you lack
+                clothes. Because no app has ever understood your body, your
+                schedule, and your style at the same time.
               </p>
             </div>
           </div>
         </section>
 
-        {/* How it works */}
+        {/* The difference — 3 columns */}
         <section className="section">
+          <div className="grid gap-8 md:grid-cols-3">
+            {DIFFERENCE.map((col) => (
+              <div key={col.eyebrow} className="panel p-8">
+                <col.icon strokeWidth={1} className="h-7 w-7 text-ink" />
+                <p className="eyebrow mt-5">{col.eyebrow}</p>
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  {col.body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* How it works */}
+        <section className="section border-t border-line">
           <div className="mx-auto max-w-2xl text-center">
             <span className="eyebrow">How it works</span>
             <h2 className="mt-4 text-3xl md:text-4xl">
@@ -114,13 +158,10 @@ export default function HomePage() {
           <div className="mt-14 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {HOW_IT_WORKS.map((step, i) => (
               <div key={step.title} className="flex flex-col">
-                <div className="flex h-12 w-12 items-center justify-center rounded border border-line">
-                  <step.icon strokeWidth={1.25} className="h-6 w-6 text-ink" />
-                </div>
-                <p className="mt-5 text-xs font-medium text-muted">
+                <span className="font-heading text-2xl accent-text">
                   0{i + 1}
-                </p>
-                <h3 className="mt-2 text-lg">{step.title}</h3>
+                </span>
+                <h3 className="mt-3 text-lg">{step.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted">
                   {step.body}
                 </p>
@@ -128,22 +169,25 @@ export default function HomePage() {
             ))}
           </div>
           <div className="mt-12 text-center">
-            <Link href="/demo" className="btn btn-outline">
-              Try the interactive demo
+            <Link href="/onboarding" className="btn btn-ghost">
+              Build your profile
               <ArrowRight strokeWidth={1.5} className="h-4 w-4" />
             </Link>
           </div>
         </section>
+
+        {/* Comparison */}
+        <Comparison />
 
         {/* Feature voting */}
         <FeatureVoting />
 
         {/* Social proof */}
         <section className="section border-t border-line">
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-3">
             {SOCIAL_PROOF.map((item) => (
-              <figure key={item.attribution} className="card p-8">
-                <blockquote className="font-heading text-xl leading-snug text-ink">
+              <figure key={item.attribution} className="panel p-8">
+                <blockquote className="font-heading text-lg leading-snug text-ink">
                   “{item.quote}”
                 </blockquote>
                 <figcaption className="mt-4 text-sm text-muted">
@@ -153,8 +197,8 @@ export default function HomePage() {
             ))}
           </div>
           <p className="mt-6 text-center text-xs text-muted">
-            Placeholder quotes from early testing. Your results may vary —
-            suggestions are inspiration only.
+            Placeholder quotes from early testing. Suggestions are inspiration
+            only — all style decisions remain yours.
           </p>
         </section>
 
@@ -162,18 +206,18 @@ export default function HomePage() {
         <Pricing />
 
         {/* Final CTA */}
-        <section className="border-t border-line bg-[#FCFCFC]">
+        <section className="border-t border-line bg-[#FBFAF8]">
           <div className="section py-20 text-center">
             <h2 className="mx-auto max-w-2xl text-3xl md:text-4xl">
-              Get dressed in seconds. Starting next season.
+              Dressed for your body. Your day. Your life.
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-muted">
-              Join the waitlist and be first in when early access opens. It&apos;s
-              free, and it always will be to start.
+              Join early access and be first in when it opens. It&apos;s free to
+              start.
             </p>
             <div className="mt-8">
-              <Link href="/waitlist" className="btn btn-primary">
-                Join the waitlist — it&apos;s free
+              <Link href="/onboarding" className="btn btn-primary">
+                Get early access — free
               </Link>
             </div>
           </div>

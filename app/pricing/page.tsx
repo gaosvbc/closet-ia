@@ -3,29 +3,34 @@ import Link from "next/link";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import Pricing from "@/components/Pricing";
+import Comparison from "@/components/Comparison";
 
 export const metadata: Metadata = {
   title: "Pricing — Visual Closet Tracker",
   description:
-    "Three simple plans: Free, Basic, and Pro. Start free and upgrade only when the value is obvious.",
+    "Three plans: Free, Essential, and Pro. Start free and upgrade for fit intelligence, weather, and calendar-aware styling.",
 };
 
 const FAQ = [
   {
     q: "Is there really a free plan?",
-    a: "Yes. Free lets you catalogue up to 15 items and get 3 outfit suggestions a week — enough to feel the concept. No card required.",
+    a: "Yes. Free lets you catalogue up to 20 items, build a basic body profile, and get 3 outfit suggestions a week. No card required.",
+  },
+  {
+    q: "What does body-fit intelligence actually do?",
+    a: "With your height, weight, body type, and fit preference, suggestions are sized and styled for your frame — not just what looks good on someone else. It's the core of Essential and Pro.",
   },
   {
     q: "Can I switch between monthly and annual?",
-    a: "Any time. Annual billing saves you 27% on Basic and 30% on Pro versus paying monthly.",
+    a: "Any time. Annual billing saves you 33% on Essential and 35% on Pro versus paying monthly. Annual is selected by default.",
   },
   {
     q: "Am I being charged now?",
-    a: "No. This is an early validation phase. Choosing a plan simply registers your interest — no payment is taken.",
+    a: "No. This is an early-access phase. Choosing a plan simply registers your interest — no payment is taken.",
   },
   {
-    q: "Do you store my photos?",
-    a: "No. In this version we never store images. Suggestions are inspiration only; your style decisions remain yours.",
+    q: "How is my body data handled?",
+    a: "Measurements are only stored if you explicitly opt in, are never shown publicly, never shared, and are protected by row-level security and encryption at rest. You can use the app without providing them.",
   },
 ];
 
@@ -40,12 +45,14 @@ export default function PricingPage() {
             Pay for it only when it earns its place.
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-muted">
-            Three plans, no hidden fees. Start free, then upgrade for weather,
-            calendar styling, and cost-per-wear insights.
+            Three plans, no hidden fees. Start free, then upgrade for fit
+            intelligence, weather, and calendar-aware styling.
           </p>
         </section>
 
         <Pricing heading={false} />
+
+        <Comparison />
 
         <section className="section border-t border-line">
           <div className="mx-auto max-w-2xl">
@@ -61,8 +68,8 @@ export default function PricingPage() {
               ))}
             </dl>
             <div className="mt-10 text-center">
-              <Link href="/waitlist" className="btn btn-primary">
-                Join the waitlist — it&apos;s free
+              <Link href="/onboarding" className="btn btn-primary">
+                Get early access — free
               </Link>
             </div>
           </div>

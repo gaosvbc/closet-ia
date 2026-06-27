@@ -4,10 +4,12 @@
 
 :root {
   --color-background: #ffffff;
-  --color-ink: #111111;
-  --color-accent: #c9a96e;
-  --color-muted: #6b6b6b;
-  --color-line: #e8e8e8;
+  --color-ink: #0a0a0a;
+  --color-accent: #c4a882;
+  --color-muted: #757575;
+  --color-line: #eeeeee;
+  --color-success: #2d6a4f;
+  --color-error: #c1121f;
 }
 
 @layer base {
@@ -34,26 +36,27 @@
   }
 
   ::selection {
-    background-color: rgba(201, 169, 110, 0.25);
+    background-color: rgba(196, 168, 130, 0.25);
   }
 }
 
 @layer components {
-  /* Buttons — black fill or outlined black. No gradients, radius max 4px. */
+  /* Buttons — filled black or ghost with 1px black border. No gradients,
+     no shadows, radius max 2px. */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded px-6 py-3 text-sm font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded px-7 py-3.5 text-sm font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .btn-primary {
     @apply bg-ink text-white hover:bg-black;
   }
 
-  .btn-outline {
+  .btn-ghost {
     @apply border border-ink bg-transparent text-ink hover:bg-ink hover:text-white;
   }
 
-  .btn-ghost {
-    @apply text-ink hover:text-muted;
+  .btn-link {
+    @apply text-ink underline-offset-4 hover:underline;
   }
 
   .field-label {
@@ -65,19 +68,31 @@
   }
 
   .eyebrow {
-    @apply text-xs font-medium uppercase tracking-[0.18em] text-muted;
+    @apply text-xs font-medium uppercase tracking-[0.2em] text-muted;
   }
 
   .section {
-    @apply mx-auto w-full max-w-content px-6 py-20 md:px-10;
+    @apply mx-auto w-full max-w-content px-6 py-16 md:px-10 md:py-24;
   }
 
+  /* Flat panels — 1px border, no rounded corners beyond 2px, no shadow. */
+  .panel,
   .card {
     @apply rounded border border-line bg-white;
   }
 
+  /* Back-compat alias for the ghost button. */
+  .btn-outline {
+    @apply border border-ink bg-transparent text-ink hover:bg-ink hover:text-white;
+  }
+
   .accent-text {
     color: var(--color-accent);
+  }
+
+  /* Segmented choice chips used across onboarding + forms. */
+  .choice {
+    @apply cursor-pointer rounded border border-line px-4 py-3 text-center text-sm text-ink transition-colors has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-white;
   }
 
   .legal-prose h2 {
