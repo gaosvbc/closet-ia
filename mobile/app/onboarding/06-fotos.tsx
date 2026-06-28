@@ -14,7 +14,7 @@ export default function Fotos() {
   async function pick(which: "facePhoto" | "bodyPhoto") {
     try {
       const res = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ["images"],
         quality: 0.7,
         allowsEditing: true,
       });

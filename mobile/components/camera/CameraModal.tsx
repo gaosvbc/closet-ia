@@ -229,7 +229,11 @@ const styles = StyleSheet.create({
   frameWrap: { flex: 1, alignItems: "center", justifyContent: "center", gap: 24 },
   frame: { width: FRAME_W, height: FRAME_H },
   preview: {
-    ...StyleSheet.absoluteFillObject,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     borderRadius: 8,
     overflow: "hidden",
     backgroundColor: "#000",
