@@ -1,0 +1,60 @@
+import { useEffect } from "react";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import * as SplashScreen from "expo-splash-screen";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import {
+  useFonts,
+  CormorantGaramond_500Medium,
+  CormorantGaramond_500Medium_Italic,
+  CormorantGaramond_600SemiBold,
+} from "@expo-google-fonts/cormorant-garamond";
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+} from "@expo-google-fonts/inter";
+import { colors } from "@/constants/colors";
+
+// Keep the splash visible until the custom fonts are ready.
+void SplashScreen.preventAutoHideAsync();
+
+export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts({
+    CormorantGaramond_500Medium,
+    CormorantGaramond_500Medium_Italic,
+    CormorantGaramond_600SemiBold,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded || fontError) {
+      void SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
+  return (
+    <SafeAreaProvider>
+      <StatusBar style="dark" />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: colors.bg },
+        }}
+      >
+        <Stack.Screen name="index" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen
+          name="camera"
+          options={{ presentation: "fullScreenModal", animation: "slide_from_bottom" }}
+        />
+      </Stack>
+    </SafeAreaProvider>
+  );
+}
