@@ -15,6 +15,7 @@ export const colors = {
   accent: "#8B1524",
   accentDark: "#5A1118",
   accentTint: "#FDF0F1", // light wine wash used on badges
+  accentTintCard: "#FDF5F6", // light wine tint for selected cards
   white: "#FFFFFF",
   beige: "#D8C9B8",
   denim: "#6F8798",
