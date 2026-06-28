@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { isOnboardingComplete } from "@/lib/storage";
 import { colors } from "@/constants/colors";
 
-// Entry point: route to the app if onboarding is done, otherwise to onboarding.
+// Entry point: route to the app if onboarding is done, otherwise to registration.
 export default function Index() {
   const router = useRouter();
   const [checking, setChecking] = useState(true);
@@ -14,7 +14,7 @@ export default function Index() {
     (async () => {
       const done = await isOnboardingComplete();
       if (!active) return;
-      router.replace(done ? "/(tabs)" : "/onboarding/01-que-usas");
+      router.replace(done ? "/(tabs)" : "/register");
       setChecking(false);
     })();
     return () => {

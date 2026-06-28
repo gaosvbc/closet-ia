@@ -19,9 +19,9 @@ export default function PerfilScreen() {
   const router = useRouter();
 
   async function signOut() {
-    // Reset the onboarding flag so the app returns to the onboarding flow.
+    // Reset the onboarding flag so the app returns to the registration screen.
     await AsyncStorage.removeItem("onboarding_complete");
-    router.replace("/onboarding/01-que-usas");
+    router.replace("/register");
   }
 
   return (

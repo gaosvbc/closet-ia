@@ -3,6 +3,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Feather } from "@expo/vector-icons";
 import {
   useFonts,
   CormorantGaramond_500Medium,
@@ -20,7 +21,11 @@ import { colors } from "@/constants/colors";
 void SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  // Feather.font is loaded alongside the display/body fonts so every Feather
+  // icon (tab bar, onboarding controls, etc.) is guaranteed ready before the
+  // first screen paints, instead of flashing in after a late async load.
   const [fontsLoaded, fontError] = useFonts({
+    ...Feather.font,
     CormorantGaramond_500Medium,
     CormorantGaramond_500Medium_Italic,
     CormorantGaramond_600SemiBold,
