@@ -8,7 +8,9 @@
     "userInterfaceStyle": "light",
     "backgroundColor": "#FBFAF7",
     "newArchEnabled": true,
+    "icon": "./assets/icon.png",
     "splash": {
+      "image": "./assets/adaptive-icon.png",
       "backgroundColor": "#8B1524",
       "resizeMode": "contain"
     },
@@ -24,6 +26,7 @@
     "android": {
       "package": "com.visualcloset.app",
       "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#8B1524"
       },
       "permissions": ["CAMERA"]
