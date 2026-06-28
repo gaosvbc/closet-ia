@@ -1,0 +1,54 @@
+{
+  "expo": {
+    "name": "Visual Closet Tracker",
+    "slug": "visual-closet-tracker",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "closetia",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#FBFAF7",
+    "newArchEnabled": false,
+    "splash": {
+      "backgroundColor": "#8B1524",
+      "resizeMode": "contain"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.visualclosettracker.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "We use the camera so you can scan and catalogue your wardrobe.",
+        "NSPhotoLibraryUsageDescription": "We access your photos so you can add existing pictures of your clothes."
+      }
+    },
+    "android": {
+      "package": "com.visualclosettracker.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#8B1524"
+      },
+      "permissions": ["CAMERA"]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Visual Closet Tracker to use the camera to scan your clothes."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Visual Closet Tracker to access your photos to add clothes."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
