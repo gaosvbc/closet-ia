@@ -1,6 +1,6 @@
-# Visual Closet Tracker — Mobile (Expo)
+# Visual Closet — Mobile (Expo)
 
-The native mobile app for Visual Closet Tracker, built with **Expo + React
+The native mobile app for Visual Closet, built with **Expo + React
 Native + Expo Router** and TypeScript (strict). It runs immediately in **mock
 mode** with the bundled demo data — no backend or credentials required.
 
@@ -59,7 +59,7 @@ Only `EXPO_PUBLIC_*` variables are exposed to the app at runtime.
 app/
   _layout.tsx            # fonts + splash + root stack
   index.tsx              # onboarding redirect
-  onboarding/            # welcome, slide2, slide3, body-profile, register
+  onboarding/            # 01-que-usas .. 10-gracias
   (tabs)/                # _layout (tab bar + camera FAB), index, armario, looks, perfil, scan
   camera.tsx             # full-screen camera modal
 components/              # ui, home, wardrobe, looks, camera, onboarding
