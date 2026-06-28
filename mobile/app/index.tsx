@@ -14,7 +14,7 @@ export default function Index() {
     (async () => {
       const done = await isOnboardingComplete();
       if (!active) return;
-      router.replace(done ? "/(tabs)" : "/onboarding/welcome");
+      router.replace(done ? "/(tabs)" : "/onboarding/01-que-usas");
       setChecking(false);
     })();
     return () => {
