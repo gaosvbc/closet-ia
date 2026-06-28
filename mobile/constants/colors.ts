@@ -1,4 +1,4 @@
-// Official Visual Closet Tracker palette.
+// Official Visual Closet palette.
 //
 // Color hierarchy:
 //   70%  bg / surface           — backgrounds and surfaces
