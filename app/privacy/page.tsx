@@ -23,12 +23,15 @@ export default function PrivacyPage() {
         <h2>What we collect</h2>
         <ul>
           <li>
-            Your email address and optional first name, when you join the
-            waitlist.
+            Your email address and optional first name, when you join early
+            access or the waitlist.
           </li>
           <li>
-            Optional survey answers about your wardrobe habits (all anonymous,
-            all optional).
+            Optional survey answers about your wardrobe habits (all optional).
+          </li>
+          <li>
+            Optional style profile during onboarding: body type, fit
+            preference, style expression, and your main wardrobe challenge.
           </li>
           <li>
             Feature and pricing preferences when you vote, to help prioritise
@@ -42,10 +45,25 @@ export default function PrivacyPage() {
       </section>
 
       <section>
+        <h2>Body measurements — only with your consent</h2>
+        <p>
+          Height and weight are <strong>only</strong> stored if you tick the
+          explicit consent box during onboarding. If you don&apos;t, we never
+          store them. When you do consent:
+        </p>
+        <ul>
+          <li>The data is used solely to size and style outfit suggestions for your body.</li>
+          <li>It is never shown publicly and never shared with third parties.</li>
+          <li>It is protected by row-level security (it can never be read by anonymous clients) and encrypted at rest.</li>
+          <li>It is never used for advertising, profiling, or any other purpose.</li>
+        </ul>
+      </section>
+
+      <section>
         <h2>What we never collect</h2>
         <ul>
           <li>Images of your clothing — no photos are stored in this version.</li>
-          <li>Biometric or body measurement data.</li>
+          <li>Biometric data beyond the height and weight you optionally consent to share.</li>
           <li>Location data beyond an optional city name.</li>
           <li>Calendar contents — we never access your calendar without explicit permission.</li>
         </ul>

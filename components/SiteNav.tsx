@@ -2,8 +2,8 @@ import Link from "next/link";
 
 const links = [
   { href: "/demo", label: "Demo" },
+  { href: "/onboarding", label: "How it works" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/#features", label: "Features" },
 ];
 
 export default function SiteNav() {
@@ -30,8 +30,8 @@ export default function SiteNav() {
           ))}
         </div>
 
-        <Link href="/waitlist" className="btn btn-primary px-5 py-2.5 text-sm">
-          Join the waitlist
+        <Link href="/onboarding" className="btn btn-primary px-5 py-2.5 text-sm">
+          Get early access
         </Link>
       </nav>
     </header>

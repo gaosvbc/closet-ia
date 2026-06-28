@@ -16,10 +16,15 @@ export default function WaitlistPage() {
       <main className="section max-w-2xl">
         <div className="text-center">
           <span className="eyebrow">Early access</span>
-          <h1 className="mt-4 text-3xl md:text-5xl">Join the waitlist</h1>
+          <h1 className="mt-4 text-3xl md:text-5xl">Get early access</h1>
           <p className="mx-auto mt-4 max-w-md text-muted">
             Be first in when early access opens. Answer a few quick questions to
-            help us build the right thing — every answer is optional.
+            help us build the right thing — every answer is optional. Want the
+            full setup?{" "}
+            <a href="/onboarding" className="text-accent hover:text-accent-dark">
+              Build your style profile
+            </a>
+            .
           </p>
         </div>
 

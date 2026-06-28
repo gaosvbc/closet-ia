@@ -3,11 +3,42 @@
 @tailwind utilities;
 
 :root {
-  --color-background: #ffffff;
-  --color-ink: #111111;
-  --color-accent: #c9a96e;
-  --color-muted: #6b6b6b;
-  --color-line: #e8e8e8;
+  /* Backgrounds */
+  --color-bg: #fbfaf7;
+  --color-surface: #f7f4ef;
+
+  /* Borders */
+  --color-border: #e8e2dc;
+
+  /* Text */
+  --color-text-primary: #171717;
+  --color-text-secondary: #8c8580;
+
+  /* Accent — ONLY for CTAs, active states, camera button, favorites */
+  --color-accent: #8b1524;
+  --color-accent-dark: #5a1118;
+  --color-accent-hover: #5a1118;
+
+  /* Detail colors */
+  --color-beige: #d8c9b8;
+  --color-denim: #6f8798;
+  --color-gold: #c8a45d;
+
+  /* Typography */
+  --font-display-stack: var(--font-display), Georgia, serif;
+  --font-ui-stack: var(--font-ui), system-ui, sans-serif;
+
+  /* Radii */
+  --radius-card: 12px;
+  --radius-button: 50px;
+  --radius-input: 8px;
+  --radius-image: 8px;
+
+  /* Back-compat aliases used by existing rules */
+  --color-background: #fbfaf7;
+  --color-ink: #171717;
+  --color-muted: #8c8580;
+  --color-line: #e8e2dc;
 }
 
 @layer base {
@@ -16,68 +47,78 @@
   }
 
   body {
-    background-color: var(--color-background);
-    color: var(--color-ink);
-    font-family: var(--font-inter), system-ui, sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    font-family: var(--font-ui-stack);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
 
+  /* Editorial headings — Cormorant Garamond */
   h1,
   h2,
   h3,
   h4 {
-    font-family: var(--font-playfair), Georgia, serif;
+    font-family: var(--font-display-stack);
     font-weight: 500;
-    letter-spacing: -0.01em;
-    color: var(--color-ink);
+    letter-spacing: 0;
+    color: var(--color-text-primary);
   }
 
   ::selection {
-    background-color: rgba(201, 169, 110, 0.25);
+    background-color: rgba(139, 21, 36, 0.18);
   }
 }
 
 @layer components {
-  /* Buttons — black fill or outlined black. No gradients, radius max 4px. */
+  /* Buttons — pill shaped. Primary = wine red. Secondary = outline black. */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded px-6 py-3 text-sm font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-pill px-7 py-3.5 text-sm font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .btn-primary {
-    @apply bg-ink text-white hover:bg-black;
+    @apply bg-accent text-white hover:bg-accent-dark;
   }
 
+  .btn-ghost,
   .btn-outline {
     @apply border border-ink bg-transparent text-ink hover:bg-ink hover:text-white;
   }
 
-  .btn-ghost {
-    @apply text-ink hover:text-muted;
+  .btn-link {
+    @apply text-accent underline-offset-4 hover:text-accent-dark;
   }
 
   .field-label {
     @apply block text-sm font-medium text-ink;
   }
 
+  /* Inputs — ivory surface, 8px radius, accent focus border. */
   .field-input {
-    @apply mt-2 w-full rounded border border-line bg-white px-4 py-3 text-sm text-ink placeholder:text-muted focus:border-ink focus:outline-none;
+    @apply mt-2 w-full rounded-input border border-line bg-surface px-4 py-3 text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none;
   }
 
   .eyebrow {
-    @apply text-xs font-medium uppercase tracking-[0.18em] text-muted;
+    @apply font-body text-[11px] font-medium uppercase tracking-[0.08em] text-muted;
   }
 
   .section {
-    @apply mx-auto w-full max-w-content px-6 py-20 md:px-10;
+    @apply mx-auto w-full max-w-content px-6 py-16 md:px-10 md:py-24;
   }
 
+  /* Cards / panels — ivory surface, 1px border, 12px radius, no shadow. */
+  .panel,
   .card {
-    @apply rounded border border-line bg-white;
+    @apply rounded-card border border-line bg-surface;
   }
 
   .accent-text {
     color: var(--color-accent);
+  }
+
+  /* Segmented choice chips — active state uses the wine accent. */
+  .choice {
+    @apply cursor-pointer rounded-input border border-line px-4 py-3 text-center text-sm text-ink transition-colors has-[:checked]:border-accent has-[:checked]:bg-accent has-[:checked]:text-white;
   }
 
   .legal-prose h2 {
@@ -97,7 +138,7 @@
   }
 
   .legal-prose a {
-    @apply text-ink underline underline-offset-2;
+    @apply text-accent underline-offset-2 hover:text-accent-dark;
   }
 
   .legal-prose section > * + * {

@@ -128,6 +128,9 @@ function Dashboard({
   stats: NonNullable<Awaited<ReturnType<typeof getAdminStats>>>;
 }) {
   const totalPlanVotes = stats.planBreakdown.reduce((s, p) => s + p.count, 0);
+  const proVotes =
+    stats.planBreakdown.find((p) => p.plan === "pro")?.count ?? 0;
+  const maxDay = Math.max(1, ...stats.signupsByDay.map((d) => d.count));
 
   return (
     <div className="mt-10 space-y-10">
@@ -135,34 +138,66 @@ function Dashboard({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Stat label="Total waitlist signups" value={stats.totalLeads} />
         <Stat
-          label="Survey completion rate"
-          value={`${Math.round(stats.surveyCompletionRate * 100)}%`}
-          sub={`${stats.surveyResponses} of ${stats.totalLeads} signups`}
+          label="Onboarding completion"
+          value={`${Math.round(stats.onboarding.completionRate * 100)}%`}
+          sub={`${stats.onboarding.completes} of ${stats.onboarding.starts} started`}
         />
         <Stat
           label="Plan preference votes"
           value={totalPlanVotes}
-          sub="across Free / Basic / Pro"
+          sub={
+            totalPlanVotes > 0
+              ? `${Math.round((proVotes / totalPlanVotes) * 100)}% chose Pro`
+              : "Essential vs Pro"
+          }
         />
       </div>
 
+      {/* Signups by day */}
+      <Panel title="Waitlist signups — last 14 days">
+        <div className="flex items-end gap-1.5" style={{ height: 96 }}>
+          {stats.signupsByDay.map((d) => (
+            <div
+              key={d.date}
+              className="flex flex-1 flex-col items-center justify-end"
+              title={`${d.date}: ${d.count}`}
+            >
+              <div
+                className="w-full bg-ink"
+                style={{
+                  height: `${Math.max(2, (d.count / maxDay) * 80)}px`,
+                }}
+              />
+              <span className="mt-1 text-[9px] text-muted">
+                {d.date.slice(8, 10)}
+              </span>
+            </div>
+          ))}
+        </div>
+      </Panel>
+
+      {/* Body profile distributions */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <Panel title="Body type distribution">
+          <DistList rows={stats.bodyTypeDistribution} empty="No body profiles yet." />
+        </Panel>
+        <Panel title="Fit preference distribution">
+          <DistList
+            rows={stats.fitPreferenceDistribution}
+            empty="No fit preferences yet."
+          />
+        </Panel>
+      </div>
+
+      <Stat
+        label="Body measurements provided"
+        value={`${Math.round(stats.onboarding.bodyMeasurementRate * 100)}%`}
+        sub="of body profiles include height with consent"
+      />
+
       {/* Feature votes */}
       <Panel title="Feature votes — ranked by popularity">
-        {stats.featureVotes.length === 0 ? (
-          <Empty>No feature votes yet.</Empty>
-        ) : (
-          <ul className="divide-y divide-line">
-            {stats.featureVotes.map((f) => (
-              <li
-                key={f.label}
-                className="flex items-center justify-between py-3 text-sm"
-              >
-                <span className="text-ink">{f.label}</span>
-                <span className="font-medium text-ink">{f.count}</span>
-              </li>
-            ))}
-          </ul>
-        )}
+        <DistList rows={stats.featureVotes} empty="No feature votes yet." />
       </Panel>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -203,6 +238,26 @@ function Dashboard({
         </Panel>
       </div>
 
+      {/* Survey */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <Panel title="Survey — time deciding">
+          <Stat
+            label="Average minutes deciding"
+            value={
+              stats.survey.averageMinutesDeciding != null
+                ? stats.survey.averageMinutesDeciding.toFixed(1)
+                : "—"
+            }
+          />
+        </Panel>
+        <Panel title="Survey — wardrobe size">
+          <DistList
+            rows={stats.survey.wardrobeSizeDistribution}
+            empty="No survey responses yet."
+          />
+        </Panel>
+      </div>
+
       {/* Recent leads */}
       <Panel title="Recent leads">
         {stats.recentLeads.length === 0 ? (
@@ -215,7 +270,12 @@ function Dashboard({
                 className="flex items-center justify-between py-3 text-sm"
               >
                 <span className="text-ink">{lead.email}</span>
-                <span className="text-muted">
+                <span className="flex items-center gap-3 text-muted">
+                  {lead.source && (
+                    <span className="rounded border border-line px-2 py-0.5 text-xs capitalize">
+                      {lead.source}
+                    </span>
+                  )}
                   {new Date(lead.createdAt).toLocaleDateString()}
                 </span>
               </li>
@@ -224,6 +284,29 @@ function Dashboard({
         )}
       </Panel>
     </div>
+  );
+}
+
+function DistList({
+  rows,
+  empty,
+}: {
+  rows: { label: string; count: number }[];
+  empty: string;
+}) {
+  if (rows.length === 0) return <Empty>{empty}</Empty>;
+  return (
+    <ul className="divide-y divide-line">
+      {rows.map((r) => (
+        <li
+          key={r.label}
+          className="flex items-center justify-between py-3 text-sm"
+        >
+          <span className="text-ink">{r.label}</span>
+          <span className="font-medium text-ink">{r.count}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -304,7 +387,7 @@ function SetupCard({
 
 function CodeBlock({ children }: { children: string }) {
   return (
-    <pre className="overflow-x-auto rounded border border-line bg-[#FAFAFA] p-4 text-xs leading-relaxed text-ink">
+    <pre className="overflow-x-auto rounded-input border border-line bg-surface p-4 text-xs leading-relaxed text-ink">
       <code>{children}</code>
     </pre>
   );

@@ -1,11 +1,11 @@
-// Shared, framework-agnostic constants used across pages, forms, and the
-// admin dashboard. Keeping these in one place keeps copy consistent and makes
-// the validation MVP easy to iterate on.
+// Shared, framework-agnostic constants for Visual Closet Tracker V2.
+// One source of truth for plans, features, the demo wardrobe, and the body
+// profile options used by onboarding.
 
 export type BillingPreference = "monthly" | "annual";
 
 export interface Plan {
-  key: "free" | "basic" | "pro";
+  key: "essential" | "pro";
   name: string;
   monthly: number;
   annual: number | null;
@@ -15,119 +15,194 @@ export interface Plan {
   mostPopular?: boolean;
 }
 
+// Every plan starts with a free trial — no free tier. Users can cancel during
+// the trial and pay nothing.
+export const TRIAL_DAYS = 7;
+
 export const PLANS: Plan[] = [
   {
-    key: "free",
-    name: "Free",
-    monthly: 0,
-    annual: null,
-    annualSaving: null,
-    tagline: "Perfect to try the concept",
-    features: [
-      "Catalogue up to 15 items",
-      "3 outfit suggestions per week",
-      "No weather or calendar integration",
-    ],
-  },
-  {
-    key: "basic",
-    name: "Basic",
-    monthly: 3.99,
-    annual: 34.99,
-    annualSaving: 27,
-    tagline: "For everyday styling",
+    key: "essential",
+    name: "Essential",
+    monthly: 4.99,
+    annual: 39.99,
+    annualSaving: 33,
+    tagline: "For everyday dressing",
     features: [
       "Unlimited wardrobe catalogue",
-      "Daily outfit suggestion",
-      "Real-time weather integration",
-      "Save favourite outfits",
+      "Daily outfit suggestion with weather",
+      "Full body profile + fit intelligence",
+      "Save and favourite outfits",
+      "Outfit history log",
+      "No watermark",
     ],
   },
   {
     key: "pro",
     name: "Pro",
-    monthly: 6.99,
-    annual: 59.99,
-    annualSaving: 30,
-    tagline: "For the fully optimised wardrobe",
+    monthly: 8.99,
+    annual: 69.99,
+    annualSaving: 35,
+    tagline: "The fully optimised wardrobe",
     mostPopular: true,
     features: [
-      "Everything in Basic",
-      "Calendar-aware styling (meeting vs casual day)",
+      "Everything in Essential",
+      "Real Google Calendar sync",
+      "Event-aware outfit suggestions",
+      "Cost-per-wear tracker with alerts",
       "Outfit repeat tracker",
-      "Cost-per-wear insights",
-      "Trip packing assistant",
-      "Priority access to new features",
+      "Trip packing assistant (calendar-aware)",
+      "Capsule wardrobe builder",
+      "Priority feature access",
     ],
   },
 ];
 
+// Feature voting. Icons are Lucide names (rendered as thin line icons) — no
+// emojis in the UI, per the design system.
 export interface FeatureVoteOption {
   key: string;
-  emoji: string;
+  icon: string;
   label: string;
   blurb: string;
 }
 
 export const FEATURES: FeatureVoteOption[] = [
   {
-    key: "weather_outfit",
-    emoji: "🌤",
-    label: "Weather-based daily outfit suggestion",
-    blurb: "The right layers for today, before you open the wardrobe.",
+    key: "body_fit",
+    icon: "Ruler",
+    label: "Body-fit intelligence",
+    blurb: "Outfits sized and styled for your actual measurements.",
   },
   {
     key: "calendar_styling",
-    emoji: "📅",
+    icon: "CalendarClock",
     label: "Calendar-aware styling",
-    blurb: "Know what the day needs — a review, a dinner, a quiet desk day.",
+    blurb: "Dressed for every meeting, every occasion.",
   },
   {
     key: "cost_per_wear",
-    emoji: "💸",
+    icon: "Wallet",
     label: "Cost-per-wear tracker",
-    blurb:
-      "“This coat cost $200 and you haven't worn it in 9 months.”",
+    blurb: "Know which clothes are worth their price.",
   },
   {
     key: "trip_packing",
-    emoji: "🧳",
+    icon: "Luggage",
     label: "Trip packing assistant",
     blurb: "Pack only what you need, nothing more.",
   },
   {
     key: "repeat_tracker",
-    emoji: "🔁",
+    icon: "Repeat",
     label: "Outfit repeat tracker",
-    blurb: "Never repeat the same look at the same event.",
+    blurb: "Never repeat at the same event.",
   },
   {
     key: "capsule_builder",
-    emoji: "📦",
+    icon: "Package",
     label: "Capsule wardrobe builder",
     blurb: "Find your perfect minimal set.",
   },
+  {
+    key: "weather_outfit",
+    icon: "CloudSun",
+    label: "Weather-based daily outfit",
+    blurb: "Always dressed for the actual day.",
+  },
+  {
+    key: "size_guide",
+    icon: "Tag",
+    label: "Size guide by brand",
+    blurb: "Your size in every brand, automatically.",
+  },
 ];
 
-// Demo wardrobe — a deliberately gender-neutral mix of feminine and
-// masculine garment types.
+// Demo wardrobe — nine pieces, a deliberately even mix of feminine and
+// masculine garment types. `worn` powers the "worn X times" counter.
 export interface WardrobeItem {
   label: string;
   category: string;
+  worn: number;
 }
 
 export const DEMO_WARDROBE: WardrobeItem[] = [
-  { label: "White Shirt", category: "Tops" },
-  { label: "Navy Blazer", category: "Outerwear" },
-  { label: "Black Trousers", category: "Bottoms" },
-  { label: "Silk Blouse", category: "Tops" },
-  { label: "Grey Coat", category: "Outerwear" },
-  { label: "White Sneakers", category: "Shoes" },
-  { label: "Camel Trench", category: "Outerwear" },
-  { label: "Blue Denim", category: "Bottoms" },
+  { label: "White Oxford Shirt", category: "Tops", worn: 18 },
+  { label: "Navy Blazer", category: "Outerwear", worn: 9 },
+  { label: "Black Tailored Trousers", category: "Bottoms", worn: 22 },
+  { label: "Silk Blouse", category: "Tops", worn: 4 },
+  { label: "Camel Trench", category: "Outerwear", worn: 6 },
+  { label: "White Sneakers", category: "Shoes", worn: 31 },
+  { label: "Grey Wool Coat", category: "Outerwear", worn: 11 },
+  { label: "Dark Denim", category: "Bottoms", worn: 27 },
+  { label: "Black Chelsea Boots", category: "Shoes", worn: 14 },
 ];
 
-export const SURVEY_QUESTIONS = {
-  wardrobeSizeOptions: ["<20", "20-50", "50-100", "100+"],
-  minutesOptions: ["<5", "5-10", "10-20", "20+"],
+// -------------------- Body profile options (onboarding) --------------------
+
+export const BODY_TYPES = [
+  "Slim",
+  "Athletic",
+  "Average",
+  "Curvy",
+  "Plus",
+] as const;
+export type BodyType = (typeof BODY_TYPES)[number];
+
+export const FIT_PREFERENCES = ["Relaxed", "Regular", "Fitted"] as const;
+export type FitPreference = (typeof FIT_PREFERENCES)[number];
+
+export const GENDER_EXPRESSIONS = [
+  "Feminine",
+  "Masculine",
+  "Neutral",
+  "Mix",
+] as const;
+export type GenderExpression = (typeof GENDER_EXPRESSIONS)[number];
+
+export const WARDROBE_CHALLENGES = [
+  "I never know what to wear",
+  "I repeat the same outfits",
+  "I have too much and use too little",
+  "I don't dress appropriately for occasions",
+  "I want to look more put-together",
+] as const;
+export type WardrobeChallenge = (typeof WARDROBE_CHALLENGES)[number];
+
+// Numeric bounds (also enforced in Zod). Height in cm, weight in kg.
+export const HEIGHT_BOUNDS_CM = { min: 50, max: 250 } as const;
+export const WEIGHT_BOUNDS_KG = { min: 20, max: 300 } as const;
+
+// -------------------- Survey (embedded in waitlist) --------------------
+
+export const SURVEY = {
+  q1: {
+    label: "How many minutes do you spend deciding what to wear each morning?",
+    options: ["<5", "5-10", "10-20", "20+"],
+  },
+  q2: {
+    label: "How many items are in your wardrobe?",
+    options: ["<30", "30-60", "60-100", "100+"],
+  },
+  q3: {
+    label: "Have you ever tried a wardrobe app before?",
+    options: ["Yes, still use it", "Yes, abandoned it", "No"],
+  },
+  q4: {
+    label: "Would you pay for an app that solved this?",
+    options: ["Yes", "No", "Maybe"],
+  },
+} as const;
+
+// -------------------- Comparison table (landing) --------------------
+
+export const COMPARISON = {
+  competitors: ["Visual Closet Tracker", "Alta Daily", "Smart Closet"],
+  rows: [
+    { label: "Body-fit intelligence", values: [true, false, false] },
+    { label: "Calendar integration", values: [true, false, false] },
+    { label: "Cost-per-wear", values: [true, false, false] },
+    { label: "Gender-neutral", values: [true, false, false] },
+    { label: "Private — no social feed", values: [true, false, true] },
+    { label: "Outfit repeat tracker", values: [true, false, false] },
+  ],
 } as const;

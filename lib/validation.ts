@@ -1,4 +1,12 @@
 import { z } from "zod";
+import {
+  BODY_TYPES,
+  FIT_PREFERENCES,
+  GENDER_EXPRESSIONS,
+  WARDROBE_CHALLENGES,
+  HEIGHT_BOUNDS_CM,
+  WEIGHT_BOUNDS_KG,
+} from "@/lib/constants";
 
 // All inbound payloads are validated with Zod before they touch Supabase.
 // Errors are caught in the API routes and never surfaced raw to the user.
@@ -10,28 +18,53 @@ const emailSchema = z
   .max(254, "Email is too long")
   .email("Please enter a valid email");
 
-// Waitlist + onboarding survey. The survey lives inside the waitlist form, so
-// the survey fields are optional — a lead can sign up without completing it.
+// ---------------------------- Waitlist + survey ----------------------------
 export const waitlistSchema = z.object({
   email: emailSchema,
   firstName: z.string().trim().max(80).optional().or(z.literal("")),
-  wardrobeSize: z
-    .enum(["<20", "20-50", "50-100", "100+"])
-    .optional(),
-  currentSolution: z.string().trim().max(280).optional().or(z.literal("")),
   consentEmail: z.boolean().default(true),
   // Honeypot — must stay empty. Bots tend to fill every field.
   company: z.string().max(0).optional().or(z.literal("")),
 
-  // Onboarding survey (4 questions)
-  q1MorningStress: z.coerce.number().int().min(1).max(5).optional(),
-  q2WardrobePieces: z.coerce.number().int().min(0).max(100000).optional(),
-  q3MinutesDeciding: z.coerce.number().int().min(0).max(1440).optional(),
-  q4WouldPay: z.enum(["yes", "no", "maybe"]).optional(),
+  // Onboarding survey (4 questions) — stored as text.
+  q1MinutesDeciding: z.enum(["<5", "5-10", "10-20", "20+"]).optional(),
+  q2WardrobeSize: z.enum(["<30", "30-60", "60-100", "100+"]).optional(),
+  q3TriedAppBefore: z
+    .enum(["Yes, still use it", "Yes, abandoned it", "No"])
+    .optional(),
+  q4WouldPay: z.enum(["Yes", "No", "Maybe"]).optional(),
 });
 
 export type WaitlistInput = z.infer<typeof waitlistSchema>;
 
+// ---------------------------- Onboarding / body ----------------------------
+// Body measurements are normalised to metric (cm / kg) on the client before
+// submission. Bounds are enforced here as defense-in-depth.
+export const onboardingSchema = z.object({
+  email: emailSchema,
+  heightCm: z
+    .number()
+    .min(HEIGHT_BOUNDS_CM.min, "Please enter a realistic height")
+    .max(HEIGHT_BOUNDS_CM.max, "Please enter a realistic height")
+    .optional(),
+  weightKg: z
+    .number()
+    .min(WEIGHT_BOUNDS_KG.min, "Please enter a realistic weight")
+    .max(WEIGHT_BOUNDS_KG.max, "Please enter a realistic weight")
+    .optional(),
+  bodyType: z.enum(BODY_TYPES).optional(),
+  fitPreference: z.enum(FIT_PREFERENCES).optional(),
+  genderExpression: z.enum(GENDER_EXPRESSIONS).optional(),
+  biggestChallenge: z.enum(WARDROBE_CHALLENGES).optional(),
+  // Explicit opt-in is REQUIRED to store any body measurement data.
+  consentBodyData: z.boolean().default(false),
+  // Honeypot.
+  company: z.string().max(0).optional().or(z.literal("")),
+});
+
+export type OnboardingInput = z.infer<typeof onboardingSchema>;
+
+// ---------------------------- Votes & events ----------------------------
 export const featureVoteSchema = z.object({
   email: emailSchema.optional().or(z.literal("")),
   featureKey: z.string().trim().min(1).max(64),
@@ -42,7 +75,7 @@ export type FeatureVoteInput = z.infer<typeof featureVoteSchema>;
 
 export const priceVoteSchema = z.object({
   email: emailSchema.optional().or(z.literal("")),
-  planSelected: z.enum(["free", "basic", "pro"]),
+  planSelected: z.enum(["essential", "pro"]),
   billingPreference: z.enum(["monthly", "annual"]).optional(),
 });
 

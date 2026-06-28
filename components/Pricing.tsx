@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { Check } from "lucide-react";
-import { PLANS, type BillingPreference } from "@/lib/constants";
+import { PLANS, TRIAL_DAYS, type BillingPreference } from "@/lib/constants";
 
-// Three pricing plans side by side on desktop, stacked on mobile. Pro is
-// highlighted as "Most Popular". Annual savings shown clearly. Selecting a plan
-// records a price_vote (or logs in fallback mode).
+// Three plans side by side on desktop, stacked on mobile. Pro is "Most
+// Popular". Annual billing is selected by default and savings are shown
+// clearly. Choosing a plan records a price_vote (or logs in fallback mode).
 
 export default function Pricing({ heading = true }: { heading?: boolean }) {
-  const [billing, setBilling] = useState<BillingPreference>("monthly");
+  const [billing, setBilling] = useState<BillingPreference>("annual");
   const [voted, setVoted] = useState<string | null>(null);
   const [pending, setPending] = useState<string | null>(null);
 
@@ -40,16 +40,17 @@ export default function Pricing({ heading = true }: { heading?: boolean }) {
         <div className="mx-auto max-w-2xl text-center">
           <span className="eyebrow">Pricing</span>
           <h2 className="mt-4 text-3xl md:text-4xl">
-            Simple plans. No surprises.
+            Premium, not precious.
           </h2>
           <p className="mt-4 text-muted">
-            Start free. Upgrade only when the value is obvious. Cancel any time.
+            Every plan starts with a {TRIAL_DAYS}-day free trial. Cancel any
+            time during the trial and pay nothing.
           </p>
         </div>
       )}
 
-      {/* Billing toggle */}
-      <div className="mt-10 flex items-center justify-center gap-3">
+      {/* Billing toggle — annual default. */}
+      <div className="mt-10 flex items-center justify-center gap-2">
         <BillingButton
           active={billing === "monthly"}
           onClick={() => setBilling("monthly")}
@@ -60,11 +61,11 @@ export default function Pricing({ heading = true }: { heading?: boolean }) {
           active={billing === "annual"}
           onClick={() => setBilling("annual")}
         >
-          Annual
+          Annual — save up to 35%
         </BillingButton>
       </div>
 
-      <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="mx-auto mt-12 grid max-w-3xl grid-cols-1 gap-6 md:grid-cols-2">
         {PLANS.map((plan) => {
           const showAnnual = billing === "annual" && plan.annual !== null;
           const price = showAnnual ? plan.annual : plan.monthly;
@@ -73,12 +74,12 @@ export default function Pricing({ heading = true }: { heading?: boolean }) {
           return (
             <div
               key={plan.key}
-              className={`card relative flex flex-col p-8 ${
-                plan.mostPopular ? "border-ink shadow-[0_0_0_1px_#111111]" : ""
+              className={`panel relative flex flex-col p-8 ${
+                plan.mostPopular ? "border-2 border-accent bg-white" : ""
               }`}
             >
               {plan.mostPopular && (
-                <span className="absolute -top-3 left-8 bg-ink px-3 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-white">
+                <span className="absolute -top-3 left-8 bg-accent px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-white">
                   Most Popular
                 </span>
               )}
@@ -103,17 +104,18 @@ export default function Pricing({ heading = true }: { heading?: boolean }) {
                     </span>
                   ) : (
                     <span className="text-muted">
-                      or ${plan.annual.toFixed(2)}/year — save{" "}
+                      or ${plan.annual.toFixed(2)}/year —{" "}
                       <span className="accent-text font-medium">
-                        {plan.annualSaving}%
+                        save {plan.annualSaving}%
                       </span>
                     </span>
                   )}
                 </p>
               )}
-              {plan.annual === null && (
-                <p className="mt-2 text-xs text-muted">Free forever</p>
-              )}
+
+              <p className="mt-3 text-xs text-muted">
+                Starts with a {TRIAL_DAYS}-day free trial · cancel any time
+              </p>
 
               <ul className="mt-8 flex-1 space-y-3">
                 {plan.features.map((feature) => (
@@ -133,16 +135,14 @@ export default function Pricing({ heading = true }: { heading?: boolean }) {
                 onClick={() => choosePlan(plan.key)}
                 disabled={pending === plan.key || isVoted}
                 className={`btn mt-8 w-full ${
-                  plan.mostPopular ? "btn-primary" : "btn-outline"
+                  plan.mostPopular ? "btn-primary" : "btn-ghost"
                 }`}
               >
                 {isVoted
                   ? "Noted — thank you"
                   : pending === plan.key
                     ? "Saving…"
-                    : plan.key === "free"
-                      ? "Start free"
-                      : `Choose ${plan.name}`}
+                    : `Start ${TRIAL_DAYS}-day free trial`}
               </button>
             </div>
           );
@@ -151,7 +151,7 @@ export default function Pricing({ heading = true }: { heading?: boolean }) {
 
       <p className="mt-8 text-center text-xs text-muted">
         Choosing a plan registers your interest. No payment is taken — this is an
-        early validation phase.
+        early access phase.
       </p>
     </section>
   );
@@ -172,8 +172,8 @@ function BillingButton({
       onClick={onClick}
       className={`rounded border px-4 py-2 text-sm transition-colors ${
         active
-          ? "border-ink bg-ink text-white"
-          : "border-line bg-white text-muted hover:text-ink"
+          ? "border-accent bg-accent text-white"
+          : "border-line bg-surface text-muted hover:text-ink"
       }`}
     >
       {children}

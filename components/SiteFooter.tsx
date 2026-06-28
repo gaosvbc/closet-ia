@@ -9,13 +9,14 @@ const legal = [
 export default function SiteFooter() {
   return (
     <footer className="border-t border-line bg-background">
-      <div className="mx-auto max-w-content px-6 py-14 md:px-10">
+      <div className="mx-auto max-w-content px-6 py-16 md:px-10">
         <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
           <div className="max-w-sm">
             <p className="font-heading text-lg text-ink">Visual Closet Tracker</p>
             <p className="mt-3 text-sm leading-relaxed text-muted">
-              Photograph your wardrobe once. Get the perfect outfit every
-              morning — based on the weather and your calendar.
+              Dressed for your body. Your day. Your life. The AI wardrobe
+              assistant that knows your measurements, your calendar, and your
+              clothes.
             </p>
           </div>
 
@@ -24,11 +25,11 @@ export default function SiteFooter() {
             <Link href="/demo" className="text-sm text-muted hover:text-ink">
               Demo
             </Link>
+            <Link href="/onboarding" className="text-sm text-muted hover:text-ink">
+              Get early access
+            </Link>
             <Link href="/pricing" className="text-sm text-muted hover:text-ink">
               Pricing
-            </Link>
-            <Link href="/waitlist" className="text-sm text-muted hover:text-ink">
-              Join the waitlist
             </Link>
           </nav>
 
@@ -47,9 +48,9 @@ export default function SiteFooter() {
         </div>
 
         <div className="mt-12 border-t border-line pt-8">
-          <p className="text-xs leading-relaxed text-muted">
-            Visual Closet Tracker provides outfit suggestions for inspiration
-            only. All style decisions remain yours.
+          <p className="max-w-2xl text-xs leading-relaxed text-muted">
+            Visual Closet Tracker provides outfit suggestions for inspiration and
+            personal guidance only. All style decisions remain entirely yours.
           </p>
           <p className="mt-4 text-xs text-muted">
             © {new Date().getFullYear()} Visual Closet Tracker. All rights

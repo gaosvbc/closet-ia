@@ -1,30 +1,49 @@
-# Visual Closet Tracker — Validation MVP
+# Visual Closet Tracker — V2 MVP
 
-An AI-powered wardrobe assistant. Photograph your clothes once and get the
-perfect outfit every morning — based on the weather and what's on your calendar.
+**Dressed for your body. Your day. Your life.**
+
+An AI-powered wardrobe assistant that knows your measurements, your calendar,
+and your clothes — and puts them together every morning without you lifting a
+finger. Unlike social, trend-led closet apps, Visual Closet Tracker is
+personal, private, and intelligent, with a luxury European design sensibility.
 
 This repository is the **validation MVP**: a polished landing page, an
-interactive demo, a waitlist with onboarding survey, feature voting, three
-pricing plans, and a password-protected admin dashboard. It is designed to
-**run live today** and connect a real backend later by only adding environment
-variables.
+interactive body-intelligence demo, a 5-step onboarding flow, a waitlist with
+survey, feature voting, three pricing plans, and a password-protected admin
+dashboard. It **runs live today** and connects a real backend later by only
+adding environment variables.
 
 > Suggestions are inspiration only — never instructions. All style decisions
-> remain yours. No images are stored in this version.
+> remain yours. No images are stored in this version, and body measurements are
+> only stored with your explicit consent.
 
 ---
 
+## What makes it different
+
+- **Body intelligence (our #1 differentiator).** Height, weight, body type, and
+  fit preference power suggestions sized and styled for *your* frame — with fit
+  notes on every look.
+- **Calendar-aware styling.** Read the day ahead — a meeting, a dinner, a gym
+  session — and dress for it. (Simulated in this MVP.)
+- **Cost-per-wear intelligence.** Know which clothes are worth their price.
+- **Truly gender-neutral.** No gendered language, no pink/blue coding, garment
+  examples mixed evenly.
+- **Private by design.** No social feed. No public profiles.
+
 ## Highlights
 
-- **Runs with zero configuration.** No Supabase, no keys, no login required.
-  Every form works in *fallback mode*, logging to the server console.
+- **Runs with zero configuration.** No Supabase, no keys, no login. Every form
+  works in *fallback mode*, logging to the server console.
 - **Production-ready when you are.** Add environment variables and run one SQL
-  migration to go live with a real Supabase backend.
-- **Security-first.** Zod validation on every form, a honeypot on the waitlist,
-  Row Level Security on every table, and the service-role key never touches the
-  browser.
-- **Clean, gender-neutral design.** White space, near-black text, a single warm
-  gold accent, Playfair Display + Inter. Inspired by The Row, COS, and Everlane.
+  migration to go live.
+- **Security-first.** Zod validation everywhere, a honeypot on forms,
+  consent-gated body data, RLS on every table, and the service-role key never
+  touches the browser.
+- **Editorial, minimal design.** Warm ivory backgrounds (`#FBFAF7` / `#F7F4EF`),
+  near-black text, a single wine-red accent (`#8B1524`) reserved for CTAs and
+  active states, Cormorant Garamond headings + Inter UI, pill buttons and 12px
+  cards, no shadows or gradients.
 
 ## Tech stack
 
@@ -33,7 +52,7 @@ variables.
 | Framework | Next.js 14 (App Router) |
 | Language | TypeScript (strict) |
 | Styling | Tailwind CSS |
-| Icons | Lucide (thin line icons) |
+| Icons | Lucide (stroke-width 1) |
 | Validation | Zod |
 | Backend (optional) | Supabase |
 
@@ -41,16 +60,18 @@ variables.
 
 | Route | Description |
 | --- | --- |
-| `/` | Landing page — full copy and design |
-| `/demo` | Interactive simulated outfit experience |
-| `/waitlist` | Waitlist capture + 4-question onboarding survey |
-| `/pricing` | Full pricing page (also embedded on the landing page) |
-| `/privacy` | Privacy policy |
+| `/` | Landing page — full copy, difference + comparison sections |
+| `/demo` | Interactive body-intelligence outfit simulation |
+| `/onboarding` | 5-step body profile setup (simulation only) |
+| `/waitlist` | Waitlist capture + 4-question survey / confirmation |
+| `/pricing` | Full pricing comparison (also embedded on the landing page) |
+| `/privacy` | Privacy policy (incl. body-data handling) |
 | `/terms` | Terms of service |
 | `/disclaimer` | Disclaimer |
 | `/admin` | Password-protected validation dashboard |
 
-API routes: `/api/leads`, `/api/feature-vote`, `/api/price-vote`, `/api/event`.
+API routes: `/api/leads`, `/api/onboarding`, `/api/feature-vote`,
+`/api/price-vote`, `/api/event`.
 
 ---
 
@@ -61,8 +82,8 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). That's it — the whole site
-works without any environment variables.
+Open [http://localhost:3000](http://localhost:3000). The whole site works
+without any environment variables.
 
 ### Scripts
 
@@ -82,7 +103,7 @@ npm run typecheck  # tsc --noEmit
 | --- | --- | --- |
 | Env vars | none required | Supabase + `ADMIN_PASSWORD` |
 | Form submissions | logged to server console | inserted into Supabase tables |
-| Waitlist message | "You're on the list. We'll be in touch soon." | same |
+| Confirmation message | "You're on the list. We'll be in touch." | same |
 | `/admin` | shows setup instructions | shows live metrics |
 
 The user experience is identical in both modes — the app never reveals which
@@ -90,11 +111,11 @@ backend state it's in.
 
 ## Connect Supabase
 
-See **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)** for the full 10-minute guide.
-Short version:
+See **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)** for the full guide. Short
+version:
 
 1. `cp .env.example .env.local` and fill in your Supabase keys + `ADMIN_PASSWORD`.
-2. Run `supabase/migrations/001_vct_validation.sql` in the Supabase SQL editor.
+2. Run `supabase/migrations/001_vct_v2.sql` in the Supabase SQL editor.
 3. Restart `npm run dev`.
 
 ### Environment variables
@@ -118,7 +139,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
    Next.js — no build configuration needed.
 3. Add the environment variables from `.env.example` under
    **Project Settings → Environment Variables**. (You can deploy with none of
-   them and the site will run in fallback mode.)
+   them and the site runs in fallback mode.)
 4. Deploy. Set `NEXT_PUBLIC_APP_URL` to your production URL.
 
 > Keep `SUPABASE_SERVICE_ROLE_KEY` and `ADMIN_PASSWORD` as plain (server)
@@ -126,38 +147,49 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 ---
 
-## Security notes
+## Security notes — especially body data
 
 - **No secrets in the repo.** All credentials come from environment variables;
   `.env.local` is git-ignored.
-- **Service-role key is server-only.** It is read exclusively in
-  `lib/supabase.ts` and `lib/admin.ts`, both server-side.
-- **Validation everywhere.** Every API route validates its body with Zod;
-  emails are format-checked and numbers are bounded.
-- **Bot protection.** The waitlist form has a hidden honeypot field; filled
-  submissions are silently discarded.
+- **Service-role key is server-only.** Read exclusively in `lib/supabase.ts` and
+  `lib/admin.ts`, both server-side.
+- **Body data is consent-gated.** Height and weight are only sent and stored
+  when the user explicitly ticks the consent box in onboarding. Without consent,
+  measurements are dropped both client-side and server-side, and a database
+  `CHECK` constraint plus an RLS `WITH CHECK` policy reject any measurement row
+  that lacks consent.
+- **Encrypted at rest.** Supabase encrypts all stored data at rest (AES-256) by
+  default. Body data is additionally shielded by RLS (no anonymous reads) and is
+  served only to the admin via the server-side service role. See
+  `SUPABASE_SETUP.md` for an optional column-level encryption hardening step.
+- **Validation everywhere.** Every API route validates with Zod; emails are
+  format-checked, height is bounded to 50–250 cm and weight to 20–300 kg.
+- **Bot protection.** Waitlist and onboarding forms include a hidden honeypot;
+  filled submissions are silently discarded.
 - **RLS on every table.** Anonymous clients may INSERT but never SELECT.
 - **No raw errors to users.** API routes return friendly messages only.
-- **No images, no body data, no precise location** are collected or stored.
+- **No images, no precise location** are collected or stored.
 
 ## What this is *not* (yet)
 
 Deliberately out of scope for the validation phase: real AI vision, camera or
 photo upload, real weather/calendar integration, payments, user accounts, push
-notifications, and any native app. See the roadmap voting on the landing page.
+notifications, native apps, and social/community features. See the roadmap
+voting on the landing page.
 
 ## Project structure
 
 ```
 app/
-  api/            # leads, feature-vote, price-vote, event routes
+  api/            # leads, onboarding, feature-vote, price-vote, event
   admin/          # password-gated dashboard + server actions
-  demo/  pricing/  waitlist/  privacy/  terms/  disclaimer/
+  demo/  onboarding/  pricing/  waitlist/  privacy/  terms/  disclaimer/
   layout.tsx  page.tsx  globals.css
-components/        # SiteNav, SiteFooter, Pricing, FeatureVoting, WaitlistForm, …
+components/        # SiteNav, SiteFooter, Pricing, FeatureVoting, Comparison,
+                  # WaitlistForm, GarmentCard, OutfitSuggestionCard, LegalLayout
 lib/              # supabase, admin, validation (zod), constants, analytics, api
 supabase/
-  migrations/001_vct_validation.sql
+  migrations/001_vct_v2.sql
 ```
 
 ---
