@@ -28,8 +28,11 @@ export default function Trabajo() {
       titleNormal="¿En qué "
       titleAccent="trabajas?"
       subtitle="Personalizamos las recomendaciones para días hábiles y fines de semana."
-      ctaDisabled={!data.occupation}
-      onContinue={() => router.push("/onboarding/06-fotos")}
+      ctaDisabled={!data.occupation && !query.trim()}
+      onContinue={() => {
+        if (!data.occupation && query.trim()) update({ occupation: query.trim() });
+        router.push("/onboarding/06-fotos");
+      }}
     >
       <TextInput
         value={query}

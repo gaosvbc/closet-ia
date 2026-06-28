@@ -17,7 +17,10 @@ export default function Marcas() {
   const { data, update } = useOnboarding();
   const [query, setQuery] = useState("");
 
-  const filtered = BRANDS.filter((b) =>
+  // Include any custom brands the user already typed in and added, so they
+  // show up (and stay toggleable) alongside the preset list.
+  const allOptions = [...BRANDS, ...data.brands.filter((b) => !BRANDS.includes(b))];
+  const filtered = allOptions.filter((b) =>
     b.toLowerCase().includes(query.trim().toLowerCase())
   );
 
@@ -27,6 +30,13 @@ export default function Marcas() {
         ? data.brands.filter((b) => b !== brand)
         : [...data.brands, brand],
     });
+  }
+
+  function addCustom() {
+    const brand = query.trim();
+    if (!brand || data.brands.includes(brand)) return;
+    update({ brands: [...data.brands, brand] });
+    setQuery("");
   }
 
   const enough = data.brands.length >= MIN;
@@ -46,6 +56,8 @@ export default function Marcas() {
       <TextInput
         value={query}
         onChangeText={setQuery}
+        onSubmitEditing={addCustom}
+        returnKeyType="done"
         placeholder="Buscar o agregar marcas…"
         placeholderTextColor={colors.textSecondary}
         style={styles.search}

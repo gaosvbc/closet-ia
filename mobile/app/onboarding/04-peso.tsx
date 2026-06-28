@@ -43,10 +43,10 @@ export default function Peso() {
         </Text>
         <View style={styles.controls}>
           <Pressable style={styles.ctrl} onPress={() => adjust(-0.5)} accessibilityLabel="Bajar peso">
-            <Feather name="minus" size={22} color={colors.textPrimary} />
+            <Feather name="minus" size={22} color={colors.white} />
           </Pressable>
           <Pressable style={styles.ctrl} onPress={() => adjust(0.5)} accessibilityLabel="Subir peso">
-            <Feather name="plus" size={22} color={colors.textPrimary} />
+            <Feather name="plus" size={22} color={colors.white} />
           </Pressable>
         </View>
       </View>
@@ -70,10 +70,13 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.white,
+    backgroundColor: colors.accent,
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
 });
