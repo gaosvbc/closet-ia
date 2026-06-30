@@ -60,6 +60,10 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
      — real auth profile columns.
    - [`supabase/migrations/004_calendar_outfit.sql`](./supabase/migrations/004_calendar_outfit.sql)
      — Google Calendar connection flag + `worn_outfits` wear-history table.
+   - [`supabase/migrations/005_garment_slot.sql`](./supabase/migrations/005_garment_slot.sql)
+     — `garment_slot` column for outfit-suggestion classification.
+   - [`supabase/migrations/006_magic_mirror.sql`](./supabase/migrations/006_magic_mirror.sql)
+     — `magic_mirror_usage` daily time-cap tracking table (Elite plan only).
 
 ### Option B — Supabase CLI
 
@@ -85,6 +89,11 @@ three, scoped to `auth.uid()`.
 | `material`, `pattern`, `season`, `formality` | Pro plan | `null` for Essential |
 | `ideal_temp_min`, `ideal_temp_max`, `occasions`, `style_descriptors`, `pairing_suggestions` | Elite plan | `null` for Essential/Pro |
 | `analysis_tier` | — | Which tier actually produced the row, default `'essential'` |
+| `garment_slot` | — | Outfit-suggestion role (`top`/`bottom`/`dress`/etc.), AI-classified, `null` on existing rows until re-analyzed |
+
+**`006_magic_mirror.sql`**: `magic_mirror_usage` — one row per user per
+calendar day, `seconds_used` capped at 300 (5 min) server-side, plus
+`estimated_cost_usd` for spend visibility. RLS scoped to `auth.uid()`.
 
 ## 5a. Claude Vision (AI clothing recognition)
 
@@ -106,6 +115,36 @@ client falls back to an empty, manually-fillable form — saving an item is
 never blocked by analysis failing. Every successful call is logged to
 `vision_api_usage` with token counts and an estimated cost (Haiku 4.5 rates:
 $1 / $5 per million input / output tokens).
+
+## 5b. Gemini Live (Magic Mirror — Elite plan beta)
+
+The Magic Mirror ("Espejo Mágico") is a real-time conversational styling
+session — the camera sees the user, they talk by voice, AtelIA responds by
+voice — built on Google's Gemini Live API. This is a **different Google
+product from the Calendar integration above** (Gemini API vs. Google
+Calendar API), so it needs its own key, even though both can live under the
+same Google Cloud account.
+
+1. Get a key at [Google AI Studio](https://ai.google.dev) (not Google Cloud
+   Console — Gemini API keys are issued from AI Studio).
+2. Add it to `mobile/.env` as `EXPO_PUBLIC_GEMINI_API_KEY`.
+
+This key is intentionally bundled client-side (`EXPO_PUBLIC_*`), the same
+pattern already used for the OpenWeather and Google Calendar client-side
+keys — the mobile app talks to Gemini Live directly over WebSocket, there is
+no backend proxy. The real cost control is not key secrecy but the
+server-tracked 5-minutes-per-day cap in `magic_mirror_usage` (migration
+006): the client heartbeats elapsed seconds to that table every 10-15s
+during a session, and a new session is refused once today's `seconds_used`
+reaches 300 — checked server-side before the camera ever opens, so closing
+and reopening the app cannot extend the limit.
+
+Without this key configured, the Magic Mirror entry point is hidden
+entirely (it never appears on the Hoy screen, even for Elite users) rather
+than showing a broken feature.
+
+The feature itself is also gated to `user_profiles.plan_tier === 'elite'`
+— Pro/Essential users never see the entry point, key configured or not.
 
 ## 6. Row Level Security & policies
 

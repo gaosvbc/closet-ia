@@ -7,22 +7,28 @@ interface Action {
   icon: keyof typeof Feather.glyphMap;
   label: string;
   onPress?: () => void;
+  elite?: boolean;
 }
 
-// Three horizontal quick-action cards under the outfit card.
+// Three (or four, for Elite plan users) horizontal quick-action cards.
 export default function QuickActions({
   onScan,
   onPlanWeek,
   onStats,
+  onMagicMirror,
 }: {
   onScan?: () => void;
   onPlanWeek?: () => void;
   onStats?: () => void;
+  onMagicMirror?: () => void;
 }) {
   const actions: Action[] = [
     { icon: "camera", label: "Escanear prenda", onPress: onScan },
     { icon: "calendar", label: "Planificar semana", onPress: onPlanWeek },
     { icon: "bar-chart-2", label: "Mis estadísticas", onPress: onStats },
+    ...(onMagicMirror
+      ? [{ icon: "star" as keyof typeof Feather.glyphMap, label: "Espejo Mágico", onPress: onMagicMirror, elite: true }]
+      : []),
   ];
 
   return (
@@ -33,10 +39,14 @@ export default function QuickActions({
           onPress={a.onPress}
           accessibilityRole="button"
           accessibilityLabel={a.label}
-          style={({ pressed }) => [styles.card, pressed && { opacity: 0.8 }]}
+          style={({ pressed }) => [
+            styles.card,
+            a.elite && styles.eliteCard,
+            pressed && { opacity: 0.8 },
+          ]}
         >
-          <Feather name={a.icon} size={22} color={colors.accent} />
-          <Text style={styles.label}>{a.label}</Text>
+          <Feather name={a.icon} size={22} color={a.elite ? colors.white : colors.accent} />
+          <Text style={[styles.label, a.elite && styles.eliteLabel]}>{a.label}</Text>
         </Pressable>
       ))}
     </View>
@@ -60,4 +70,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textPrimary,
   },
+  eliteCard: {
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
+  },
+  eliteLabel: { color: colors.white },
 });

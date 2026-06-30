@@ -20,6 +20,8 @@ import { getTodayEvents, type CalendarEvent } from "@/lib/calendar/googleCalenda
 import { suggestOutfit, type OutfitSuggestion } from "@/lib/outfit/suggestOutfit";
 import type { ClothingItem } from "@/types";
 
+const GEMINI_CONFIGURED = Boolean(process.env.EXPO_PUBLIC_GEMINI_API_KEY);
+
 const MIN_WARDROBE_SIZE = 5;
 const RECENT_WEAR_WINDOW_DAYS = 14;
 
@@ -65,6 +67,7 @@ export default function HomeScreen() {
   });
   const [suggestion, setSuggestion] = useState<OutfitSuggestion | null>(null);
   const [wornToday, setWornToday] = useState(false);
+  const [planTier, setPlanTier] = useState<string>("essential");
 
   const displayName =
     !isMockMode && user
@@ -118,7 +121,9 @@ export default function HomeScreen() {
           recentIds = wornRows.flatMap((row) => row.item_ids ?? []);
           wasWornToday = wornRows.some((row) => row.worn_date === todayISODate());
 
-          const planTier = profileRes.data?.plan_tier;
+          const tier = profileRes.data?.plan_tier ?? "essential";
+          setPlanTier(tier);
+          const planTier = tier;
           const calendarConnected = Boolean(profileRes.data?.google_calendar_connected);
           if ((planTier === "pro" || planTier === "elite") && calendarConnected) {
             try {
@@ -268,6 +273,11 @@ export default function HomeScreen() {
           onScan={() => router.push("/camera")}
           onPlanWeek={() => {}}
           onStats={() => {}}
+          onMagicMirror={
+            planTier === "elite" && GEMINI_CONFIGURED
+              ? () => router.push("/magic-mirror")
+              : undefined
+          }
         />
       </ScrollView>
     </SafeAreaView>

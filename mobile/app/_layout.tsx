@@ -68,6 +68,10 @@ export default function RootLayout() {
             options={{ presentation: "fullScreenModal", animation: "slide_from_bottom" }}
           />
           <Stack.Screen
+            name="magic-mirror"
+            options={{ presentation: "fullScreenModal", animation: "slide_from_bottom" }}
+          />
+          <Stack.Screen
             name="item-review"
             options={{ presentation: "modal", animation: "slide_from_bottom" }}
           />
