@@ -1,4 +1,4 @@
-import type { ClothingCategory, ClothingItem, ClothingShape } from "@/types";
+import type { ClothingCategory, ClothingItem, ClothingShape, GarmentSlot } from "@/types";
 
 // The AI classifies directly into the app's Spanish wardrobe categories
 // (see lib/ai/clothing-analysis.ts prompts), so no AI↔UI category
@@ -17,6 +17,21 @@ export function categoryToShape(category: ClothingCategory): ClothingShape {
 
 function isClothingCategory(value: string): value is ClothingCategory {
   return value in CATEGORY_SHAPE;
+}
+
+const GARMENT_SLOTS: readonly GarmentSlot[] = [
+  "top",
+  "bottom",
+  "dress",
+  "outerwear",
+  "footwear",
+  "accessory",
+  "bag",
+  "na",
+];
+
+function isGarmentSlot(value: string): value is GarmentSlot {
+  return (GARMENT_SLOTS as readonly string[]).includes(value);
 }
 
 // Best-effort free-text color name → swatch hex, for the abstract card
@@ -52,6 +67,7 @@ export interface ClothingItemRow {
   image_url: string | null;
   name: string | null;
   type: string | null;
+  garment_slot: string | null;
   color: string | null;
   category: string | null;
   material: string | null;
@@ -78,6 +94,7 @@ export function dbRowToClothingItem(row: ClothingItemRow): ClothingItem {
     favorited: Boolean(row.favorited),
     imageUri: row.image_url ?? undefined,
     type: row.type ?? undefined,
+    garmentSlot: row.garment_slot && isGarmentSlot(row.garment_slot) ? row.garment_slot : undefined,
     material: row.material ?? undefined,
     pattern: row.pattern ?? undefined,
     season: row.season ?? undefined,

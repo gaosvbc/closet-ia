@@ -13,6 +13,7 @@ export interface ClothingItem {
   name: string;
   category: "Prendas" | "Zapatos" | "Accesorios" | "Bolsos";
   type?: string;
+  garmentSlot?: "top" | "bottom" | "dress" | "outerwear" | "footwear" | "accessory" | "bag" | "na";
   season?: string;
   formality?: string;
   idealTempRangeCelsius?: { min: number; max: number };
@@ -38,20 +39,18 @@ export interface OutfitSuggestion {
   repeatCheckPassed: boolean;
 }
 
-type GarmentSlot = "top" | "bottom" | "dress" | "outerwear" | "other";
+type PrendaSlot = "top" | "bottom" | "dress" | "outerwear" | "other";
 
-const TOP_KEYWORDS = /camis|blusa|playera|polo|sueter|suéter|top|jersey|cárdigan|cardigan|chaleco/i;
-const BOTTOM_KEYWORDS = /pantal[oó]n|jean|falda|short|bermuda|legging/i;
-const DRESS_KEYWORDS = /vestido|mono|jumpsuit|overol/i;
-const OUTERWEAR_KEYWORDS = /abrigo|chaqueta|chamarra|saco|blazer|gabardina/i;
-
-function classifyGarment(item: ClothingItem): GarmentSlot {
-  const text = `${item.type ?? ""} ${item.name}`.toLowerCase();
-  if (DRESS_KEYWORDS.test(text)) return "dress";
-  if (OUTERWEAR_KEYWORDS.test(text)) return "outerwear";
-  if (TOP_KEYWORDS.test(text)) return "top";
-  if (BOTTOM_KEYWORDS.test(text)) return "bottom";
-  return "other";
+function prendaSlot(item: ClothingItem): PrendaSlot {
+  switch (item.garmentSlot) {
+    case "top":
+    case "bottom":
+    case "dress":
+    case "outerwear":
+      return item.garmentSlot;
+    default:
+      return "other";
+  }
 }
 
 function matchesWeather(item: ClothingItem, tempCelsius: number): boolean {
@@ -110,9 +109,9 @@ export function suggestOutfit(input: OutfitSuggestionInput): OutfitSuggestion {
   const accesorios = notRecentlyWorn.filter((item) => item.category === "Accesorios");
   const bolsos = notRecentlyWorn.filter((item) => item.category === "Bolsos");
 
-  const dresses = prendas.filter((item) => classifyGarment(item) === "dress");
-  const tops = prendas.filter((item) => classifyGarment(item) === "top");
-  const bottoms = prendas.filter((item) => classifyGarment(item) === "bottom");
+  const dresses = prendas.filter((item) => prendaSlot(item) === "dress");
+  const tops = prendas.filter((item) => prendaSlot(item) === "top");
+  const bottoms = prendas.filter((item) => prendaSlot(item) === "bottom");
 
   const selected: ClothingItem[] = [];
 
@@ -120,7 +119,7 @@ export function suggestOutfit(input: OutfitSuggestionInput): OutfitSuggestion {
   if (dress) {
     selected.push(dress);
   } else {
-    const top = pickOne(tops) ?? pickOne(prendas.filter((item) => classifyGarment(item) === "other"));
+    const top = pickOne(tops) ?? pickOne(prendas.filter((item) => prendaSlot(item) === "other"));
     const bottom = pickOne(bottoms);
     if (top) selected.push(top);
     if (bottom && bottom.id !== top?.id) selected.push(bottom);

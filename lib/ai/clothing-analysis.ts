@@ -25,10 +25,21 @@ const MODEL = "claude-haiku-4-5-20251001";
 
 export type PlanTier = "essential" | "pro" | "elite";
 
+export type GarmentSlot =
+  | "top"
+  | "bottom"
+  | "dress"
+  | "outerwear"
+  | "footwear"
+  | "accessory"
+  | "bag"
+  | "na";
+
 export interface ClothingAnalysisBasic {
   type: string;
   color: string;
   category: "Prendas" | "Zapatos" | "Accesorios" | "Bolsos";
+  garmentSlot: GarmentSlot;
 }
 
 export interface ClothingAnalysisDetailed extends ClothingAnalysisBasic {
@@ -50,30 +61,42 @@ export type ClothingAnalysis =
   | ClothingAnalysisDetailed
   | ClothingAnalysisFull;
 
+const GARMENT_SLOT_GUIDE = `Garment slot guidance (only applies when category is "Prendas"):
+- "top" = shirts, blouses, t-shirts, sweaters, tank tops
+- "bottom" = pants, skirts, shorts, jeans
+- "dress" = dresses, jumpsuits, rompers (a single complete lower+upper piece)
+- "outerwear" = jackets, coats, blazers
+For items where category is "Zapatos", "Accesorios", or "Bolsos", set garmentSlot to "na" (not applicable — these have their own category already).`;
+
 const PROMPTS: Record<PlanTier, string> = {
   essential: `Analyze this clothing item photo. Return ONLY valid JSON with no markdown formatting:
 {
   "type": "specific garment name",
   "color": "primary color",
-  "category": "Prendas|Zapatos|Accesorios|Bolsos"
+  "category": "Prendas|Zapatos|Accesorios|Bolsos",
+  "garmentSlot": "top|bottom|dress|outerwear|footwear|accessory|bag|na"
 }
-Category guide: Prendas = clothing worn on the body (tops, bottoms, dresses, outerwear); Zapatos = footwear; Accesorios = jewelry, belts, hats, scarves, sunglasses; Bolsos = bags, purses, backpacks.`,
+Category guide: Prendas = clothing worn on the body (tops, bottoms, dresses, outerwear); Zapatos = footwear; Accesorios = jewelry, belts, hats, scarves, sunglasses; Bolsos = bags, purses, backpacks.
+${GARMENT_SLOT_GUIDE}`,
   pro: `Analyze this clothing item photo in detail. Return ONLY valid JSON with no markdown formatting:
 {
   "type": "specific garment name",
   "color": "primary color",
   "category": "Prendas|Zapatos|Accesorios|Bolsos",
+  "garmentSlot": "top|bottom|dress|outerwear|footwear|accessory|bag|na",
   "material": "fabric/material guess",
   "pattern": "solid|striped|floral|plaid|other",
   "season": "spring|summer|fall|winter|year-round",
   "formality": "casual|business-casual|formal|athletic"
 }
-Category guide: Prendas = clothing worn on the body (tops, bottoms, dresses, outerwear); Zapatos = footwear; Accesorios = jewelry, belts, hats, scarves, sunglasses; Bolsos = bags, purses, backpacks.`,
+Category guide: Prendas = clothing worn on the body (tops, bottoms, dresses, outerwear); Zapatos = footwear; Accesorios = jewelry, belts, hats, scarves, sunglasses; Bolsos = bags, purses, backpacks.
+${GARMENT_SLOT_GUIDE}`,
   elite: `Analyze this clothing item photo comprehensively, as an expert fashion stylist would. Return ONLY valid JSON with no markdown formatting:
 {
   "type": "specific garment name",
   "color": "primary color",
   "category": "Prendas|Zapatos|Accesorios|Bolsos",
+  "garmentSlot": "top|bottom|dress|outerwear|footwear|accessory|bag|na",
   "material": "fabric/material guess",
   "pattern": "solid|striped|floral|plaid|other",
   "season": "spring|summer|fall|winter|year-round",
@@ -83,7 +106,8 @@ Category guide: Prendas = clothing worn on the body (tops, bottoms, dresses, out
   "styleDescriptors": ["array", "of", "style", "words"],
   "pairingSuggestions": "brief text on what this pairs well with"
 }
-Category guide: Prendas = clothing worn on the body (tops, bottoms, dresses, outerwear); Zapatos = footwear; Accesorios = jewelry, belts, hats, scarves, sunglasses; Bolsos = bags, purses, backpacks.`,
+Category guide: Prendas = clothing worn on the body (tops, bottoms, dresses, outerwear); Zapatos = footwear; Accesorios = jewelry, belts, hats, scarves, sunglasses; Bolsos = bags, purses, backpacks.
+${GARMENT_SLOT_GUIDE}`,
 };
 
 export interface AnalyzeResult {

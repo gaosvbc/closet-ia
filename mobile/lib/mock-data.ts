@@ -19,18 +19,18 @@ export const userProfile: UserProfile = {
 };
 
 export const clothingItems: ClothingItem[] = [
-  { id: "1", name: "Blazer vino", color: "#8B1524", shape: "tall-rect", category: "Prendas", favorited: true },
-  { id: "2", name: "Camisa blanca", color: "#F7F4EF", shape: "tall-rect", category: "Prendas", favorited: false },
-  { id: "3", name: "Pantalón negro", color: "#171717", shape: "pentagon", category: "Prendas", favorited: false },
-  { id: "4", name: "Bolso negro", color: "#0A0A0A", shape: "pentagon", category: "Bolsos", favorited: false },
-  { id: "5", name: "Camisa beige", color: "#D8C9B8", shape: "tall-rect", category: "Prendas", favorited: false },
-  { id: "6", name: "Jeans denim", color: "#6F8798", shape: "tall-rect", category: "Prendas", favorited: false },
-  { id: "7", name: "Top vino", color: "#8B1524", shape: "tall-rect", category: "Prendas", favorited: false },
-  { id: "8", name: "Abrigo negro", color: "#1A1A1A", shape: "pentagon", category: "Prendas", favorited: true },
-  { id: "9", name: "Jersey crema", color: "#EDE8E0", shape: "tall-rect", category: "Prendas", favorited: false },
-  { id: "10", name: "Falda negra", color: "#171717", shape: "tall-rect", category: "Prendas", favorited: false },
-  { id: "11", name: "Botines beige", color: "#C8A45D", shape: "pill", category: "Zapatos", favorited: false },
-  { id: "12", name: "Collar dorado", color: "#C8A45D", shape: "pill", category: "Accesorios", favorited: false },
+  { id: "1", name: "Blazer vino", color: "#8B1524", shape: "tall-rect", category: "Prendas", garmentSlot: "outerwear", favorited: true },
+  { id: "2", name: "Camisa blanca", color: "#F7F4EF", shape: "tall-rect", category: "Prendas", garmentSlot: "top", favorited: false },
+  { id: "3", name: "Pantalón negro", color: "#171717", shape: "pentagon", category: "Prendas", garmentSlot: "bottom", favorited: false },
+  { id: "4", name: "Bolso negro", color: "#0A0A0A", shape: "pentagon", category: "Bolsos", garmentSlot: "na", favorited: false },
+  { id: "5", name: "Camisa beige", color: "#D8C9B8", shape: "tall-rect", category: "Prendas", garmentSlot: "top", favorited: false },
+  { id: "6", name: "Jeans denim", color: "#6F8798", shape: "tall-rect", category: "Prendas", garmentSlot: "bottom", favorited: false },
+  { id: "7", name: "Top vino", color: "#8B1524", shape: "tall-rect", category: "Prendas", garmentSlot: "top", favorited: false },
+  { id: "8", name: "Abrigo negro", color: "#1A1A1A", shape: "pentagon", category: "Prendas", garmentSlot: "outerwear", favorited: true },
+  { id: "9", name: "Jersey crema", color: "#EDE8E0", shape: "tall-rect", category: "Prendas", garmentSlot: "top", favorited: false },
+  { id: "10", name: "Falda negra", color: "#171717", shape: "tall-rect", category: "Prendas", garmentSlot: "bottom", favorited: false },
+  { id: "11", name: "Botines beige", color: "#C8A45D", shape: "pill", category: "Zapatos", garmentSlot: "na", favorited: false },
+  { id: "12", name: "Collar dorado", color: "#C8A45D", shape: "pill", category: "Accesorios", garmentSlot: "na", favorited: false },
 ];
 
 export const looks: Look[] = [
