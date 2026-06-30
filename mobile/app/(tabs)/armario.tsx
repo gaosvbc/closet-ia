@@ -1,21 +1,41 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useFocusEffect } from "@react-navigation/native";
 import { Feather } from "@expo/vector-icons";
 import ClothingGrid from "@/components/wardrobe/ClothingGrid";
 import CategoryPills from "@/components/wardrobe/CategoryPills";
 import { clothingItems, categories } from "@/lib/mock-data";
 import { userProfile } from "@/lib/mock-data";
+import { getAddedItems } from "@/lib/wardrobe-store";
 import { colors } from "@/constants/colors";
 import { fonts } from "@/constants/typography";
+import type { ClothingItem } from "@/types";
 
 export default function ArmarioScreen() {
   const [active, setActive] = useState<string>("Todo");
+  const [addedItems, setAddedItems] = useState<ClothingItem[]>([]);
+
+  // Re-read scanned items every time this tab gains focus, so an item saved
+  // from the camera flow shows up immediately on return.
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      void getAddedItems().then((items) => {
+        if (!cancelled) setAddedItems(items);
+      });
+      return () => {
+        cancelled = true;
+      };
+    }, [])
+  );
+
+  const allItems = useMemo(() => [...addedItems, ...clothingItems], [addedItems]);
 
   const items = useMemo(() => {
-    if (active === "Todo") return clothingItems;
-    return clothingItems.filter((i) => i.category === active);
-  }, [active]);
+    if (active === "Todo") return allItems;
+    return allItems.filter((i) => i.category === active);
+  }, [active, allItems]);
 
   const Header = (
     <View style={styles.header}>
