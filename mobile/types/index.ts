@@ -36,7 +36,7 @@ export interface ClothingItem {
 export interface ClothingAnalysis {
   type: string;
   color: string;
-  category: "top" | "bottom" | "footwear" | "accessory" | "outerwear";
+  category: ClothingCategory;
   material?: string;
   pattern?: string;
   season?: string;

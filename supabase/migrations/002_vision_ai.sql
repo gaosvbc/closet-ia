@@ -55,7 +55,7 @@ create table if not exists public.clothing_items (
   name                 text,
   type                 text,
   color                text,
-  category             text check (category in ('top', 'bottom', 'footwear', 'accessory', 'outerwear')),
+  category             text check (category in ('Prendas', 'Zapatos', 'Accesorios', 'Bolsos')),
 
   -- Pro tier
   material             text,
