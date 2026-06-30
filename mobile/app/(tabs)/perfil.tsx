@@ -9,6 +9,7 @@ import { colors } from "@/constants/colors";
 import { fonts } from "@/constants/typography";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { isMockMode, supabase } from "@/lib/supabase";
+import GoogleCalendarConnect from "@/components/profile/GoogleCalendarConnect";
 
 const MENU: { icon: keyof typeof Feather.glyphMap; label: string }[] = [
   { icon: "bar-chart-2", label: "Mis estadísticas" },
@@ -18,10 +19,14 @@ const MENU: { icon: keyof typeof Feather.glyphMap; label: string }[] = [
   { icon: "help-circle", label: "Ayuda y soporte" },
 ];
 
+type PlanTier = "essential" | "pro" | "elite";
+
 interface ProfileView {
   fullName: string;
   styleTag: string;
   stats: { prendas: number; looks: number; favoritos: number };
+  planTier: PlanTier;
+  googleCalendarConnected: boolean;
 }
 
 export default function PerfilScreen() {
@@ -31,6 +36,8 @@ export default function PerfilScreen() {
     fullName: mockProfile.fullName,
     styleTag: mockProfile.styleTag,
     stats: mockProfile.stats,
+    planTier: "essential",
+    googleCalendarConnected: false,
   });
 
   useFocusEffect(
@@ -40,7 +47,11 @@ export default function PerfilScreen() {
 
       (async () => {
         const [profileRes, itemsRes, looksRes, favRes] = await Promise.all([
-          supabase.from("user_profiles").select("full_name, occupation").eq("id", user.id).single(),
+          supabase
+            .from("user_profiles")
+            .select("full_name, occupation, plan_tier, google_calendar_connected")
+            .eq("id", user.id)
+            .single(),
           supabase.from("clothing_items").select("id", { count: "exact", head: true }).eq("user_id", user.id),
           supabase.from("looks").select("id", { count: "exact", head: true }).eq("user_id", user.id),
           supabase
@@ -59,6 +70,8 @@ export default function PerfilScreen() {
             looks: looksRes.count ?? 0,
             favoritos: favRes.count ?? 0,
           },
+          planTier: (profileRes.data?.plan_tier as PlanTier) || "essential",
+          googleCalendarConnected: Boolean(profileRes.data?.google_calendar_connected),
         });
       })();
 
@@ -67,6 +80,16 @@ export default function PerfilScreen() {
       };
     }, [user])
   );
+
+  async function handleCalendarConnectedChange(connected: boolean) {
+    setProfile((prev) => ({ ...prev, googleCalendarConnected: connected }));
+    if (!isMockMode && supabase && user) {
+      await supabase
+        .from("user_profiles")
+        .update({ google_calendar_connected: connected })
+        .eq("id", user.id);
+    }
+  }
 
   async function handleSignOut() {
     await signOut();
@@ -93,6 +116,14 @@ export default function PerfilScreen() {
           <View style={styles.statDivider} />
           <Stat value={profile.stats.favoritos} label="Favoritos" />
         </View>
+
+        {/* Google Calendar connect — Pro/Elite only */}
+        {(profile.planTier === "pro" || profile.planTier === "elite") && (
+          <GoogleCalendarConnect
+            connected={profile.googleCalendarConnected}
+            onConnectedChange={handleCalendarConnectedChange}
+          />
+        )}
 
         {/* Menu */}
         <View style={styles.menu}>

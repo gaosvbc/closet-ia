@@ -56,6 +56,10 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
      — landing-page capture tables.
    - [`supabase/migrations/002_vision_ai.sql`](./supabase/migrations/002_vision_ai.sql)
      — wardrobe + AI clothing recognition tables.
+   - [`supabase/migrations/003_auth.sql`](./supabase/migrations/003_auth.sql)
+     — real auth profile columns.
+   - [`supabase/migrations/004_calendar_outfit.sql`](./supabase/migrations/004_calendar_outfit.sql)
+     — Google Calendar connection flag + `worn_outfits` wear-history table.
 
 ### Option B — Supabase CLI
 
