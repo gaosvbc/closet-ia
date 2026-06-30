@@ -20,7 +20,8 @@
       "bundleIdentifier": "com.atelia.app",
       "infoPlist": {
         "NSCameraUsageDescription": "We use the camera so you can scan and catalogue your wardrobe.",
-        "NSPhotoLibraryUsageDescription": "We access your photos so you can add existing pictures of your clothes."
+        "NSPhotoLibraryUsageDescription": "We access your photos so you can add existing pictures of your clothes.",
+        "NSLocationWhenInUseUsageDescription": "We use your location to show accurate local weather for outfit suggestions."
       }
     },
     "android": {
@@ -29,7 +30,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#8B1524"
       },
-      "permissions": ["CAMERA"]
+      "permissions": ["CAMERA", "ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
     },
     "web": {
       "bundler": "metro",
@@ -47,6 +48,12 @@
         "expo-image-picker",
         {
           "photosPermission": "Allow AtelIA to access your photos to add clothes."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "We use your location to show accurate local weather for outfit suggestions."
         }
       ]
     ],

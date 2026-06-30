@@ -19,7 +19,7 @@ import { fonts, eyebrow } from "@/constants/typography";
 import { analyzeClothing } from "@/lib/api/analyzeClothing";
 import { getUserId } from "@/lib/user";
 import { addItem } from "@/lib/wardrobe-store";
-import { mapAiCategory, mapCategoryToAi, colorNameToHex } from "@/lib/ai-mapping";
+import { categoryToShape, colorNameToHex } from "@/lib/ai-mapping";
 import { isMockMode, supabase } from "@/lib/supabase";
 import type { ClothingAnalysis, ClothingCategory } from "@/types";
 
@@ -57,7 +57,7 @@ export default function ItemReviewScreen() {
         setAnalysis(result.analysis);
         setName(result.analysis.type);
         setColor(result.analysis.color);
-        setCategory(mapAiCategory(result.analysis.category).category);
+        setCategory(result.analysis.category);
       } else {
         setAnalysisError(result.error);
       }
@@ -75,10 +75,6 @@ export default function ItemReviewScreen() {
 
     if (!isMockMode && supabase) {
       const userId = await getUserId();
-      const dbCategory =
-        analysis?.category && mapAiCategory(analysis.category).category === category
-          ? analysis.category
-          : mapCategoryToAi(category);
 
       await supabase.from("clothing_items").insert({
         user_id: userId,
@@ -86,7 +82,7 @@ export default function ItemReviewScreen() {
         name: name.trim() || "Prenda sin nombre",
         type: analysis?.type ?? null,
         color: color || "grey",
-        category: dbCategory,
+        category,
         material: analysis?.material ?? null,
         pattern: analysis?.pattern ?? null,
         season: analysis?.season ?? null,
@@ -99,7 +95,7 @@ export default function ItemReviewScreen() {
         favorited: false,
       });
     } else {
-      const shape = analysis ? mapAiCategory(analysis.category).shape : "square";
+      const shape = categoryToShape(category);
       await addItem({
         id: `${Date.now()}`,
         name: name.trim() || "Prenda sin nombre",

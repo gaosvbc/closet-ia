@@ -28,7 +28,7 @@ export type PlanTier = "essential" | "pro" | "elite";
 export interface ClothingAnalysisBasic {
   type: string;
   color: string;
-  category: "top" | "bottom" | "footwear" | "accessory" | "outerwear";
+  category: "Prendas" | "Zapatos" | "Accesorios" | "Bolsos";
 }
 
 export interface ClothingAnalysisDetailed extends ClothingAnalysisBasic {
@@ -55,23 +55,25 @@ const PROMPTS: Record<PlanTier, string> = {
 {
   "type": "specific garment name",
   "color": "primary color",
-  "category": "top|bottom|footwear|accessory|outerwear"
-}`,
+  "category": "Prendas|Zapatos|Accesorios|Bolsos"
+}
+Category guide: Prendas = clothing worn on the body (tops, bottoms, dresses, outerwear); Zapatos = footwear; Accesorios = jewelry, belts, hats, scarves, sunglasses; Bolsos = bags, purses, backpacks.`,
   pro: `Analyze this clothing item photo in detail. Return ONLY valid JSON with no markdown formatting:
 {
   "type": "specific garment name",
   "color": "primary color",
-  "category": "top|bottom|footwear|accessory|outerwear",
+  "category": "Prendas|Zapatos|Accesorios|Bolsos",
   "material": "fabric/material guess",
   "pattern": "solid|striped|floral|plaid|other",
   "season": "spring|summer|fall|winter|year-round",
   "formality": "casual|business-casual|formal|athletic"
-}`,
+}
+Category guide: Prendas = clothing worn on the body (tops, bottoms, dresses, outerwear); Zapatos = footwear; Accesorios = jewelry, belts, hats, scarves, sunglasses; Bolsos = bags, purses, backpacks.`,
   elite: `Analyze this clothing item photo comprehensively, as an expert fashion stylist would. Return ONLY valid JSON with no markdown formatting:
 {
   "type": "specific garment name",
   "color": "primary color",
-  "category": "top|bottom|footwear|accessory|outerwear",
+  "category": "Prendas|Zapatos|Accesorios|Bolsos",
   "material": "fabric/material guess",
   "pattern": "solid|striped|floral|plaid|other",
   "season": "spring|summer|fall|winter|year-round",
@@ -80,7 +82,8 @@ const PROMPTS: Record<PlanTier, string> = {
   "occasions": ["array", "of", "occasion", "tags"],
   "styleDescriptors": ["array", "of", "style", "words"],
   "pairingSuggestions": "brief text on what this pairs well with"
-}`,
+}
+Category guide: Prendas = clothing worn on the body (tops, bottoms, dresses, outerwear); Zapatos = footwear; Accesorios = jewelry, belts, hats, scarves, sunglasses; Bolsos = bags, purses, backpacks.`,
 };
 
 export interface AnalyzeResult {

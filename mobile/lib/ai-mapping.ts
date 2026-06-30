@@ -1,35 +1,22 @@
 import type { ClothingCategory, ClothingItem, ClothingShape } from "@/types";
 
-// Maps the AI's English category to the app's existing Spanish wardrobe
-// categories and abstract card shape, both of which predate this feature
-// and are presentational only.
-const CATEGORY_MAP: Record<string, { category: ClothingCategory; shape: ClothingShape }> = {
-  top: { category: "Prendas", shape: "tall-rect" },
-  bottom: { category: "Prendas", shape: "tall-rect" },
-  outerwear: { category: "Prendas", shape: "pentagon" },
-  footwear: { category: "Zapatos", shape: "pill" },
-  accessory: { category: "Accesorios", shape: "square" },
+// The AI classifies directly into the app's Spanish wardrobe categories
+// (see lib/ai/clothing-analysis.ts prompts), so no AI↔UI category
+// conversion is needed. This just picks the abstract card shape used for
+// presentational variety on the wardrobe grid.
+const CATEGORY_SHAPE: Record<ClothingCategory, ClothingShape> = {
+  Prendas: "tall-rect",
+  Zapatos: "pill",
+  Accesorios: "square",
+  Bolsos: "pentagon",
 };
 
-export function mapAiCategory(aiCategory: string): { category: ClothingCategory; shape: ClothingShape } {
-  return CATEGORY_MAP[aiCategory] ?? { category: "Prendas", shape: "square" };
+export function categoryToShape(category: ClothingCategory): ClothingShape {
+  return CATEGORY_SHAPE[category] ?? "square";
 }
 
-// Reverse of the above, for writing a user-edited Spanish category back to
-// the AI-shaped `category` column (constrained to top/bottom/footwear/
-// accessory/outerwear in clothing_items). "Prendas" covers three AI
-// categories so this picks the most common one ("top"); "Bolsos" has no AI
-// equivalent so it falls back to "accessory" — both are best-effort, not a
-// lossless round trip.
-const REVERSE_CATEGORY_MAP: Record<ClothingCategory, string> = {
-  Prendas: "top",
-  Zapatos: "footwear",
-  Accesorios: "accessory",
-  Bolsos: "accessory",
-};
-
-export function mapCategoryToAi(category: ClothingCategory): string {
-  return REVERSE_CATEGORY_MAP[category];
+function isClothingCategory(value: string): value is ClothingCategory {
+  return value in CATEGORY_SHAPE;
 }
 
 // Best-effort free-text color name → swatch hex, for the abstract card
@@ -80,12 +67,13 @@ export interface ClothingItemRow {
 }
 
 export function dbRowToClothingItem(row: ClothingItemRow): ClothingItem {
-  const { category, shape } = mapAiCategory(row.category ?? "");
+  const category: ClothingCategory =
+    row.category && isClothingCategory(row.category) ? row.category : "Prendas";
   return {
     id: row.id,
     name: row.name || row.type || "Prenda sin nombre",
     color: colorNameToHex(row.color || "grey"),
-    shape,
+    shape: categoryToShape(category),
     category,
     favorited: Boolean(row.favorited),
     imageUri: row.image_url ?? undefined,

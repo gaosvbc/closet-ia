@@ -1,48 +1,82 @@
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable, type ViewStyle } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { colors } from "@/constants/colors";
 import { fonts } from "@/constants/typography";
+import type { ClothingItem, ClothingShape } from "@/types";
 
-// "Tu look de hoy" card — the hero of the Home screen. The clothing grid is a
-// stylised arrangement of coloured blocks matching the design mock.
-export default function OutfitCard({
-  onWear,
-  onShuffle,
-}: {
+function shapeStyle(shape: ClothingShape): ViewStyle {
+  switch (shape) {
+    case "pill":
+      return { borderRadius: 40 };
+    case "pentagon":
+      return { borderRadius: 10, borderTopLeftRadius: 26, borderTopRightRadius: 26 };
+    default:
+      return { borderRadius: 10 };
+  }
+}
+
+interface OutfitCardProps {
+  items: ClothingItem[];
+  styleNote: string;
+  eventLabel?: string;
+  wornToday: boolean;
   onWear?: () => void;
   onShuffle?: () => void;
-}) {
+}
+
+// "Tu look de hoy" card — the hero of the Home screen. Renders the real
+// suggested items as abstract coloured blocks, matching the same
+// shape/colour language used in the wardrobe grid (ClothingCard.tsx).
+export default function OutfitCard({
+  items,
+  styleNote,
+  eventLabel,
+  wornToday,
+  onWear,
+  onShuffle,
+}: OutfitCardProps) {
+  const [hero, ...rest] = items;
+  const gridItems = rest.slice(0, 4);
+
   return (
     <View style={styles.card}>
       <View style={styles.topRow}>
         <Text style={styles.eyebrow}>TU LOOK DE HOY</Text>
-        <View style={styles.badge}>
-          <Feather name="calendar" size={11} color={colors.accent} />
-          <Text style={styles.badgeText}>Reunión · 10:00</Text>
-        </View>
+        {eventLabel ? (
+          <View style={styles.badge}>
+            <Feather name="calendar" size={11} color={colors.accent} />
+            <Text style={styles.badgeText}>{eventLabel}</Text>
+          </View>
+        ) : null}
       </View>
 
       {/* Clothing grid */}
       <View style={styles.grid}>
         <View style={[styles.gridSlot, styles.tall]}>
-          <View style={[styles.block, { backgroundColor: colors.accent, height: "100%" }]} />
+          {hero && (
+            <View
+              style={[styles.block, shapeStyle(hero.shape), { backgroundColor: hero.color, height: "100%" }]}
+            />
+          )}
         </View>
         <View style={styles.gridRight}>
           <View style={styles.gridRow}>
-            <View style={[styles.gridSlot, styles.small]}>
-              <View style={[styles.block, { backgroundColor: colors.beige }]} />
-            </View>
-            <View style={[styles.gridSlot, styles.small]}>
-              <View style={[styles.block, styles.pill, { backgroundColor: colors.textPrimary }]} />
-            </View>
+            {[gridItems[0], gridItems[1]].map((item, i) => (
+              <View key={item?.id ?? `slot-top-${i}`} style={[styles.gridSlot, styles.small]}>
+                {item && (
+                  <View style={[styles.block, shapeStyle(item.shape), { backgroundColor: item.color }]} />
+                )}
+              </View>
+            ))}
           </View>
           <View style={styles.gridRow}>
-            <View style={[styles.gridSlot, styles.small]}>
-              <View style={[styles.block, { backgroundColor: "#2A2A2A" }]} />
-            </View>
-            <View style={[styles.gridSlot, styles.small]}>
-              <View style={[styles.block, styles.pill, { backgroundColor: colors.ink }]} />
-            </View>
+            {[gridItems[2], gridItems[3]].map((item, i) => (
+              <View key={item?.id ?? `slot-bottom-${i}`} style={[styles.gridSlot, styles.small]}>
+                {item && (
+                  <View style={[styles.block, shapeStyle(item.shape), { backgroundColor: item.color }]} />
+                )}
+              </View>
+            ))}
           </View>
         </View>
       </View>
@@ -53,21 +87,25 @@ export default function OutfitCard({
           <Feather name="star" size={11} color={colors.accent} />
           <Text style={styles.aiBadgeText}>IA</Text>
         </View>
-        <Text style={styles.aiNote}>
-          Capas sobrias en paleta neutra para tu reunión de las 10:00 y la mañana
-          fresca de 18°.
-        </Text>
+        <Text style={styles.aiNote}>{styleNote}</Text>
       </View>
 
       {/* Actions */}
       <View style={styles.actionRow}>
         <Pressable
           onPress={onWear}
+          disabled={wornToday}
           accessibilityRole="button"
-          style={({ pressed }) => [styles.wearBtn, pressed && { opacity: 0.85 }]}
+          style={({ pressed }) => [
+            styles.wearBtn,
+            wornToday && styles.wearBtnDone,
+            pressed && !wornToday && { opacity: 0.85 },
+          ]}
         >
-          <Feather name="check" size={16} color={colors.white} />
-          <Text style={styles.wearText}>Me lo pongo hoy</Text>
+          <Feather name="check" size={16} color={wornToday ? colors.accent : colors.white} />
+          <Text style={[styles.wearText, wornToday && styles.wearTextDone]}>
+            {wornToday ? "Ya te lo pusiste hoy" : "Me lo pongo hoy"}
+          </Text>
         </Pressable>
         <Pressable
           onPress={onShuffle}
@@ -124,8 +162,7 @@ const styles = StyleSheet.create({
   gridRight: { flex: 1, gap: 8 },
   gridRow: { flex: 1, flexDirection: "row", gap: 8 },
   small: { flex: 1 },
-  block: { flex: 1, borderRadius: 10, width: "100%" },
-  pill: { borderRadius: 40 },
+  block: { flex: 1, width: "100%" },
 
   aiRow: { flexDirection: "row", gap: 10, alignItems: "flex-start" },
   aiBadge: {
@@ -159,7 +196,13 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     height: 48,
   },
+  wearBtnDone: {
+    backgroundColor: colors.accentTint,
+    borderWidth: 1,
+    borderColor: colors.accent,
+  },
   wearText: { fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.white },
+  wearTextDone: { color: colors.accent },
   shuffleBtn: {
     width: 44,
     height: 44,
