@@ -399,7 +399,7 @@ function Shell({
       <div className="mx-auto max-w-xl px-6 py-10 md:py-16">
         <div className="flex items-center justify-between">
           <Link href="/" className="font-heading text-lg">
-            Visual Closet Tracker
+            AtelIA
           </Link>
           <span className="text-xs text-muted">
             Step {Math.min(step, TOTAL_STEPS)} of {TOTAL_STEPS}

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import LegalLayout from "@/components/LegalLayout";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — Visual Closet Tracker",
-  description: "How Visual Closet Tracker handles your data.",
+  title: "Privacy Policy — AtelIA",
+  description: "How AtelIA handles your data.",
 };
 
 export default function PrivacyPage() {
@@ -11,7 +11,7 @@ export default function PrivacyPage() {
     <LegalLayout title="Privacy Policy" updated="June 2026">
       <section>
         <p>
-          This is a privacy policy template for the Visual Closet Tracker
+          This is a privacy policy template for the AtelIA
           validation phase. It describes how we handle the limited information
           collected through the waitlist, survey, and feature-voting forms.
           Replace this placeholder copy with policy reviewed by qualified

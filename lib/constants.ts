@@ -1,4 +1,4 @@
-// Shared, framework-agnostic constants for Visual Closet Tracker V2.
+// Shared, framework-agnostic constants for AtelIA V2.
 // One source of truth for plans, features, the demo wardrobe, and the body
 // profile options used by onboarding.
 
@@ -196,7 +196,7 @@ export const SURVEY = {
 // -------------------- Comparison table (landing) --------------------
 
 export const COMPARISON = {
-  competitors: ["Visual Closet Tracker", "Alta Daily", "Smart Closet"],
+  competitors: ["AtelIA", "Alta Daily", "Smart Closet"],
   rows: [
     { label: "Body-fit intelligence", values: [true, false, false] },
     { label: "Calendar integration", values: [true, false, false] },

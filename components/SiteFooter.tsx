@@ -12,7 +12,7 @@ export default function SiteFooter() {
       <div className="mx-auto max-w-content px-6 py-16 md:px-10">
         <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
           <div className="max-w-sm">
-            <p className="font-heading text-lg text-ink">Visual Closet Tracker</p>
+            <p className="font-heading text-lg text-ink">AtelIA</p>
             <p className="mt-3 text-sm leading-relaxed text-muted">
               Dressed for your body. Your day. Your life. The AI wardrobe
               assistant that knows your measurements, your calendar, and your
@@ -49,11 +49,11 @@ export default function SiteFooter() {
 
         <div className="mt-12 border-t border-line pt-8">
           <p className="max-w-2xl text-xs leading-relaxed text-muted">
-            Visual Closet Tracker provides outfit suggestions for inspiration and
+            AtelIA provides outfit suggestions for inspiration and
             personal guidance only. All style decisions remain entirely yours.
           </p>
           <p className="mt-4 text-xs text-muted">
-            © {new Date().getFullYear()} Visual Closet Tracker. All rights
+            © {new Date().getFullYear()} AtelIA. All rights
             reserved.
           </p>
         </div>

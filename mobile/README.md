@@ -1,6 +1,6 @@
-# Visual Closet — Mobile (Expo)
+# AtelIA — Mobile (Expo)
 
-The native mobile app for Visual Closet, built with **Expo + React
+The native mobile app for AtelIA, built with **Expo + React
 Native + Expo Router** and TypeScript (strict). It runs immediately in **mock
 mode** with the bundled demo data — no backend or credentials required.
 

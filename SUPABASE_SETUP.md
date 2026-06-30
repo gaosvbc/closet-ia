@@ -1,6 +1,6 @@
 # Supabase Setup
 
-Visual Closet Tracker runs **fully without Supabase** in fallback mode (every
+AtelIA runs **fully without Supabase** in fallback mode (every
 write is logged to the server console). Follow this guide to connect a real
 backend so signups, body profiles, votes, and events persist and the `/admin`
 dashboard shows live data.

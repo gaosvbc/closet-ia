@@ -8,7 +8,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Official Visual Closet Tracker palette
+        // Official AtelIA palette
         background: "#FBFAF7", // warm white (not pure white)
         surface: "#F7F4EF", // ivory surface for cards/inputs
         ink: "#171717", // primary text

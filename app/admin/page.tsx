@@ -10,7 +10,7 @@ import { isSupabaseConfigured } from "@/lib/supabase";
 import { login, logout } from "./actions";
 
 export const metadata: Metadata = {
-  title: "Admin — Visual Closet Tracker",
+  title: "Admin — AtelIA",
   robots: { index: false, follow: false },
 };
 
@@ -317,7 +317,7 @@ function Shell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-content px-6 py-16 md:px-10">
         <Link href="/" className="font-heading text-lg">
-          Visual Closet Tracker
+          AtelIA
         </Link>
         <div className="mt-10">{children}</div>
       </div>

@@ -6,7 +6,7 @@ import Pricing from "@/components/Pricing";
 import Comparison from "@/components/Comparison";
 
 export const metadata: Metadata = {
-  title: "Pricing — Visual Closet Tracker",
+  title: "Pricing — AtelIA",
   description:
     "Two plans: Essential and Pro. Every plan starts with a 7-day free trial — cancel any time and pay nothing.",
 };
