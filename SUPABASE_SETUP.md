@@ -46,14 +46,16 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 > `.env.local` is git-ignored. **Never commit it.**
 
-## 4. Run the migration
+## 4. Run the migrations
 
 ### Option A — SQL editor (no CLI)
 
 1. Open **SQL Editor** in the Supabase dashboard.
-2. Paste the contents of
-   [`supabase/migrations/001_vct_v2.sql`](./supabase/migrations/001_vct_v2.sql).
-3. Click **Run**.
+2. Paste and run, in order:
+   - [`supabase/migrations/001_vct_v2.sql`](./supabase/migrations/001_vct_v2.sql)
+     — landing-page capture tables.
+   - [`supabase/migrations/002_vision_ai.sql`](./supabase/migrations/002_vision_ai.sql)
+     — wardrobe + AI clothing recognition tables.
 
 ### Option B — Supabase CLI
 
@@ -65,8 +67,41 @@ supabase db push
 
 ## 5. Tables created
 
-`leads`, `body_profiles`, `survey_responses`, `feature_votes`, `price_votes`,
-`page_events`. RLS is enabled on all six.
+**`001_vct_v2.sql`**: `leads`, `body_profiles`, `survey_responses`,
+`feature_votes`, `price_votes`, `page_events`. RLS is enabled on all six.
+
+**`002_vision_ai.sql`**: `user_profiles` (subscription plan tier per user),
+`clothing_items` (the wardrobe catalogue, including the AI-derived columns
+below), `vision_api_usage` (Claude Vision cost log). RLS is enabled on all
+three, scoped to `auth.uid()`.
+
+| `clothing_items` column | Added by | Notes |
+| --- | --- | --- |
+| `type`, `color`, `category` | Essential plan | Always populated |
+| `material`, `pattern`, `season`, `formality` | Pro plan | `null` for Essential |
+| `ideal_temp_min`, `ideal_temp_max`, `occasions`, `style_descriptors`, `pairing_suggestions` | Elite plan | `null` for Essential/Pro |
+| `analysis_tier` | — | Which tier actually produced the row, default `'essential'` |
+
+## 5a. Claude Vision (AI clothing recognition)
+
+`/api/analyze-clothing` uses the Anthropic API (`claude-haiku-4-5-20251001`)
+to identify a clothing item from a photo. Analysis depth — Essential / Pro /
+Elite — is controlled entirely by prompt engineering based on the user's
+plan, resolved server-side via `getUserPlanTier()` against `user_profiles`.
+
+1. Get a key at [console.anthropic.com](https://console.anthropic.com).
+2. Add it to `.env.local` as `ANTHROPIC_API_KEY`.
+
+> ⚠️ **This key must be server-side only, never exposed to the client.** It
+> is read only inside `lib/ai/clothing-analysis.ts`, which is only ever
+> imported from the `/api/analyze-clothing` route. Never prefix it with
+> `NEXT_PUBLIC_`.
+
+Without this key configured, `/api/analyze-clothing` returns a 500 and the
+client falls back to an empty, manually-fillable form — saving an item is
+never blocked by analysis failing. Every successful call is logged to
+`vision_api_usage` with token counts and an estimated cost (Haiku 4.5 rates:
+$1 / $5 per million input / output tokens).
 
 ## 6. Row Level Security & policies
 

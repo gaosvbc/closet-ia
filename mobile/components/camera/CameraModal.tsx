@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
+import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import {
@@ -18,6 +19,7 @@ type Mode = "photo" | "video";
 // placeholder when camera permission isn't granted so it always renders.
 export default function CameraModal({ onClose }: { onClose: () => void }) {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const cameraRef = useRef<CameraView>(null);
   const [permission, requestPermission] = useCameraPermissions();
 
@@ -49,7 +51,10 @@ export default function CameraModal({ onClose }: { onClose: () => void }) {
 
   async function takePicture() {
     try {
-      await cameraRef.current?.takePictureAsync();
+      const photo = await cameraRef.current?.takePictureAsync();
+      if (photo?.uri) {
+        router.push({ pathname: "/item-review", params: { uri: photo.uri } });
+      }
     } catch {
       // no-op in mock / no permission
     }

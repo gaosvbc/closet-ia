@@ -1,11 +1,14 @@
+import { useCallback, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 import { Feather } from "@expo/vector-icons";
-import { userProfile } from "@/lib/mock-data";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { userProfile as mockProfile } from "@/lib/mock-data";
 import { colors } from "@/constants/colors";
 import { fonts } from "@/constants/typography";
+import { useAuth } from "@/lib/auth/AuthContext";
+import { isMockMode, supabase } from "@/lib/supabase";
 
 const MENU: { icon: keyof typeof Feather.glyphMap; label: string }[] = [
   { icon: "bar-chart-2", label: "Mis estadísticas" },
@@ -15,12 +18,58 @@ const MENU: { icon: keyof typeof Feather.glyphMap; label: string }[] = [
   { icon: "help-circle", label: "Ayuda y soporte" },
 ];
 
+interface ProfileView {
+  fullName: string;
+  styleTag: string;
+  stats: { prendas: number; looks: number; favoritos: number };
+}
+
 export default function PerfilScreen() {
   const router = useRouter();
+  const { user, signOut } = useAuth();
+  const [profile, setProfile] = useState<ProfileView>({
+    fullName: mockProfile.fullName,
+    styleTag: mockProfile.styleTag,
+    stats: mockProfile.stats,
+  });
 
-  async function signOut() {
-    // Reset the onboarding flag so the app returns to the registration screen.
-    await AsyncStorage.removeItem("onboarding_complete");
+  useFocusEffect(
+    useCallback(() => {
+      if (isMockMode || !supabase || !user) return;
+      let cancelled = false;
+
+      (async () => {
+        const [profileRes, itemsRes, looksRes, favRes] = await Promise.all([
+          supabase.from("user_profiles").select("full_name, occupation").eq("id", user.id).single(),
+          supabase.from("clothing_items").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+          supabase.from("looks").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+          supabase
+            .from("clothing_items")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", user.id)
+            .eq("favorited", true),
+        ]);
+        if (cancelled) return;
+
+        setProfile({
+          fullName: profileRes.data?.full_name || user.email || "Tu perfil",
+          styleTag: profileRes.data?.occupation ? `Ocupación · ${profileRes.data.occupation}` : "",
+          stats: {
+            prendas: itemsRes.count ?? 0,
+            looks: looksRes.count ?? 0,
+            favoritos: favRes.count ?? 0,
+          },
+        });
+      })();
+
+      return () => {
+        cancelled = true;
+      };
+    }, [user])
+  );
+
+  async function handleSignOut() {
+    await signOut();
     router.replace("/register");
   }
 
@@ -30,19 +79,19 @@ export default function PerfilScreen() {
         {/* Header */}
         <View style={styles.profileHeader}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarLetter}>V</Text>
+            <Text style={styles.avatarLetter}>{profile.fullName.charAt(0).toUpperCase()}</Text>
           </View>
-          <Text style={styles.name}>{userProfile.fullName}</Text>
-          <Text style={styles.styleTag}>{userProfile.styleTag}</Text>
+          <Text style={styles.name}>{profile.fullName}</Text>
+          {!!profile.styleTag && <Text style={styles.styleTag}>{profile.styleTag}</Text>}
         </View>
 
         {/* Stats */}
         <View style={styles.statsCard}>
-          <Stat value={userProfile.stats.prendas} label="Prendas" />
+          <Stat value={profile.stats.prendas} label="Prendas" />
           <View style={styles.statDivider} />
-          <Stat value={userProfile.stats.looks} label="Looks" />
+          <Stat value={profile.stats.looks} label="Looks" />
           <View style={styles.statDivider} />
-          <Stat value={userProfile.stats.favoritos} label="Favoritos" />
+          <Stat value={profile.stats.favoritos} label="Favoritos" />
         </View>
 
         {/* Menu */}
@@ -60,7 +109,7 @@ export default function PerfilScreen() {
           ))}
         </View>
 
-        <Pressable onPress={signOut} style={styles.signOut} accessibilityRole="button">
+        <Pressable onPress={handleSignOut} style={styles.signOut} accessibilityRole="button">
           <Text style={styles.signOutText}>Cerrar sesión</Text>
         </Pressable>
       </ScrollView>

@@ -8,9 +8,17 @@ import QuickActions from "@/components/home/QuickActions";
 import { userProfile } from "@/lib/mock-data";
 import { colors } from "@/constants/colors";
 import { fonts } from "@/constants/typography";
+import { useAuth } from "@/lib/auth/AuthContext";
+import { isMockMode } from "@/lib/supabase";
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { user } = useAuth();
+
+  const displayName =
+    !isMockMode && user
+      ? String(user.user_metadata?.full_name ?? user.email ?? "").split(" ")[0] || "tú"
+      : userProfile.name;
 
   return (
     <SafeAreaView style={styles.root} edges={["top"]}>
@@ -23,7 +31,7 @@ export default function HomeScreen() {
           <View style={styles.headerText}>
             <Text style={styles.date}>SÁBADO, 28 DE JUNIO</Text>
             <Text style={styles.greeting}>
-              Hola, <Text style={styles.greetingName}>{userProfile.name}</Text>
+              Hola, <Text style={styles.greetingName}>{displayName}</Text>
             </Text>
             <View style={styles.eventRow}>
               <View style={styles.eventDot} />
