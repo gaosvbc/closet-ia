@@ -16,6 +16,7 @@ import { CameraView, useCameraPermissions, useMicrophonePermissions } from "expo
 import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
 import { LinearGradient } from "expo-linear-gradient";
+import AudioRecord from "react-native-audio-record";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { colors } from "@/constants/colors";
 import { fonts } from "@/constants/typography";
@@ -82,7 +83,10 @@ export default function MagicMirrorScreen() {
 
   const cameraRef = useRef<CameraView>(null);
   const sessionRef = useRef<Session | null>(null);
+  // iOS: expo-av Audio.Recording for the LINEARPCM clip loop
   const recordingRef = useRef<Audio.Recording | null>(null);
+  // Android: subscription handle returned by react-native-audio-record
+  const audioSubscriptionRef = useRef<{ remove: () => void } | null>(null);
   const heartbeatIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const frameIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const clipLoopActiveRef = useRef(false);
@@ -155,7 +159,18 @@ export default function MagicMirrorScreen() {
       countdownRef.current = null;
     }
 
-    if (recordingRef.current) {
+    // Stop audio capture — platform-specific teardown
+    if (Platform.OS === "android") {
+      if (audioSubscriptionRef.current) {
+        audioSubscriptionRef.current.remove();
+        audioSubscriptionRef.current = null;
+      }
+      try {
+        await AudioRecord.stop();
+      } catch {
+        // Already stopped or never started
+      }
+    } else if (recordingRef.current) {
       try {
         await recordingRef.current.stopAndUnloadAsync();
       } catch {
@@ -232,8 +247,10 @@ export default function MagicMirrorScreen() {
   // Mic recording clip loop
   // ---------------------------------------------------------------------------
 
+  // iOS only: expo-av LINEARPCM produces correct PCM16 at 16kHz for Gemini Live.
+  // Android uses startAndroidAudioCapture instead (react-native-audio-record).
   const startClipLoop = useCallback(async (session: Session) => {
-    if (Platform.OS === "web") return;
+    if (Platform.OS !== "ios") return;
     await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
 
     clipLoopActiveRef.current = true;
@@ -241,56 +258,29 @@ export default function MagicMirrorScreen() {
       const recording = new Audio.Recording();
       recordingRef.current = recording;
       try {
-        // iOS: LINEARPCM (lpcm) at 16kHz, 16-bit — exact PCM format Gemini Live expects.
-        // Android: m4a/AAC — mimeType mismatch with Gemini's expected audio/pcm;rate=16000.
-        // Android audio capture is a known limitation of this managed-Expo implementation;
-        // see PR description and Final Report for details.
-        const recordingOptions: Audio.RecordingOptions =
-          Platform.OS === "ios"
-            ? {
-                isMeteringEnabled: false,
-                android: {
-                  extension: ".m4a",
-                  outputFormat: Audio.AndroidOutputFormat.MPEG_4,
-                  audioEncoder: Audio.AndroidAudioEncoder.AAC,
-                  sampleRate: 16000,
-                  numberOfChannels: 1,
-                  bitRate: 32000,
-                },
-                ios: {
-                  extension: ".wav",
-                  outputFormat: Audio.IOSOutputFormat.LINEARPCM,
-                  audioQuality: Audio.IOSAudioQuality.MIN,
-                  sampleRate: 16000,
-                  numberOfChannels: 1,
-                  bitRate: 256000,
-                  linearPCMBitDepth: 16,
-                  linearPCMIsBigEndian: false,
-                  linearPCMIsFloat: false,
-                },
-                web: {},
-              }
-            : {
-                isMeteringEnabled: false,
-                android: {
-                  extension: ".m4a",
-                  outputFormat: Audio.AndroidOutputFormat.MPEG_4,
-                  audioEncoder: Audio.AndroidAudioEncoder.AAC,
-                  sampleRate: 16000,
-                  numberOfChannels: 1,
-                  bitRate: 32000,
-                },
-                ios: {
-                  extension: ".m4a",
-                  outputFormat: Audio.IOSOutputFormat.MPEG4AAC,
-                  audioQuality: Audio.IOSAudioQuality.MIN,
-                  sampleRate: 16000,
-                  numberOfChannels: 1,
-                  bitRate: 32000,
-                },
-                web: {},
-              };
-        await recording.prepareToRecordAsync(recordingOptions);
+        await recording.prepareToRecordAsync({
+          isMeteringEnabled: false,
+          android: {
+            extension: ".m4a",
+            outputFormat: Audio.AndroidOutputFormat.MPEG_4,
+            audioEncoder: Audio.AndroidAudioEncoder.AAC,
+            sampleRate: 16000,
+            numberOfChannels: 1,
+            bitRate: 32000,
+          },
+          ios: {
+            extension: ".wav",
+            outputFormat: Audio.IOSOutputFormat.LINEARPCM,
+            audioQuality: Audio.IOSAudioQuality.MIN,
+            sampleRate: 16000,
+            numberOfChannels: 1,
+            bitRate: 256000,
+            linearPCMBitDepth: 16,
+            linearPCMIsBigEndian: false,
+            linearPCMIsFloat: false,
+          },
+          web: {},
+        });
         await recording.startAsync();
         await new Promise<void>((r) => setTimeout(r, CLIP_DURATION_MS));
 
@@ -308,17 +298,11 @@ export default function MagicMirrorScreen() {
           const base64 = await FileSystem.readAsStringAsync(uri, {
             encoding: FileSystem.EncodingType.Base64,
           });
-          // On iOS: LPCM/PCM16 at 16kHz, perfectly matching Gemini's expected format.
-          // On Android: m4a/AAC — may be rejected by the server; documented limitation.
-          const mimeType =
-            Platform.OS === "ios" ? "audio/pcm;rate=16000" : "audio/m4a";
-          const chunk = Platform.OS === "ios" ? base64 : base64;
-          void sendAudioChunk(session, chunk);
-          // Delete temp file to avoid filling storage.
+          // LINEARPCM at 16kHz/16-bit: exact PCM16 format Gemini Live expects.
+          void sendAudioChunk(session, base64);
           await FileSystem.deleteAsync(uri, { idempotent: true });
         }
       } catch {
-        // Recording failed — skip this clip and try again next iteration.
         try {
           await recording.stopAndUnloadAsync();
         } catch {
@@ -328,6 +312,26 @@ export default function MagicMirrorScreen() {
         await new Promise<void>((r) => setTimeout(r, 200));
       }
     }
+  }, []);
+
+  // Android: real-time PCM16 at 16kHz via AudioRecord API (react-native-audio-record).
+  // expo-av's MediaRecorder wrapper has no PCM output on Android — AudioRecord does.
+  const startAndroidAudioCapture = useCallback((session: Session) => {
+    // Ensure AI audio plays through the speaker, not the earpiece.
+    void Audio.setAudioModeAsync({ playsInSilentModeIOS: false, playThroughEarpieceAndroid: false });
+
+    AudioRecord.init({
+      sampleRate: 16000,
+      channels: 1,
+      bitsPerSample: 16,
+      audioSource: 6, // VOICE_RECOGNITION — optimized for speech, lower processing latency
+    });
+
+    audioSubscriptionRef.current = AudioRecord.on("data", (data: string) => {
+      if (data) sendAudioChunk(session, data);
+    });
+
+    AudioRecord.start();
   }, []);
 
   // ---------------------------------------------------------------------------
@@ -513,8 +517,12 @@ export default function MagicMirrorScreen() {
             });
           }, 1000);
 
-          // Mic clip loop (background async — never awaited to avoid blocking).
-          void startClipLoop(session);
+          // Start audio capture: PCM16 at 16kHz on both platforms.
+          if (Platform.OS === "android") {
+            startAndroidAudioCapture(session);
+          } else {
+            void startClipLoop(session);
+          }
         },
         onMessage: handleMessage,
         onError: (error) => {
@@ -537,7 +545,7 @@ export default function MagicMirrorScreen() {
       setState("error");
       setErrorMessage("No pudimos conectar con tu estilista. Intenta de nuevo.");
     }
-  }, [user, startPulse, startClipLoop, handleMessage, endSession]);
+  }, [user, startPulse, startClipLoop, startAndroidAudioCapture, handleMessage, endSession]);
 
   // ---------------------------------------------------------------------------
   // Stop session (user-initiated or time-expired)

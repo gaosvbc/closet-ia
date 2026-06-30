@@ -1,12 +1,10 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 import type { Session, LiveServerMessage } from "@google/genai";
 
-// JUDGMENT CALL: the model string below is taken verbatim from the goal spec.
-// The @google/genai SDK's own bundled JSDoc examples reference different Live
-// preview model ids ("gemini-live-2.5-flash-preview", etc.). I kept the
-// spec's literal string since that's what was explicitly requested; see PR
-// description for the full flag.
-const LIVE_MODEL = "gemini-3.1-flash-live-preview";
+// Confirmed from @google/genai dist source (node/index.js live.connect example):
+// non-Vertex path uses 'gemini-live-2.5-flash-preview'; Vertex uses
+// 'gemini-2.0-flash-live-preview-04-09'. We use Google AI Studio, not Vertex.
+const LIVE_MODEL = "gemini-live-2.5-flash-preview";
 
 function buildSystemInstruction(wardrobeContext: string): string {
   return `Eres AtelIA, un estilista personal experto y cálido.
