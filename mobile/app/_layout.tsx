@@ -16,6 +16,7 @@ import {
   Inter_600SemiBold,
 } from "@expo-google-fonts/inter";
 import { colors } from "@/constants/colors";
+import { AuthProvider } from "@/lib/auth/AuthContext";
 
 // Keep the splash visible until the custom fonts are ready.
 void SplashScreen.preventAutoHideAsync();
@@ -46,24 +47,28 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar style="dark" />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: colors.bg },
-        }}
-      >
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen
-          name="camera"
-          options={{ presentation: "fullScreenModal", animation: "slide_from_bottom" }}
-        />
-        <Stack.Screen
-          name="item-review"
-          options={{ presentation: "modal", animation: "slide_from_bottom" }}
-        />
-      </Stack>
+      <AuthProvider>
+        <StatusBar style="dark" />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: colors.bg },
+          }}
+        >
+          <Stack.Screen name="index" />
+          <Stack.Screen name="register" />
+          <Stack.Screen name="login" />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen
+            name="camera"
+            options={{ presentation: "fullScreenModal", animation: "slide_from_bottom" }}
+          />
+          <Stack.Screen
+            name="item-review"
+            options={{ presentation: "modal", animation: "slide_from_bottom" }}
+          />
+        </Stack>
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }

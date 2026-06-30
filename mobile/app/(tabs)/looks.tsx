@@ -1,18 +1,61 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { View, Text, StyleSheet, Pressable, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useFocusEffect } from "@react-navigation/native";
 import { Feather } from "@expo/vector-icons";
 import LookCard from "@/components/looks/LookCard";
 import { looks as mockLooks } from "@/lib/mock-data";
 import type { Look } from "@/types";
 import { colors } from "@/constants/colors";
 import { fonts } from "@/constants/typography";
+import { useAuth } from "@/lib/auth/AuthContext";
+import { isMockMode, supabase } from "@/lib/supabase";
 
 type TabKey = "mis" | "favoritos";
 
+interface LookRow {
+  id: string;
+  title: string | null;
+  look_date: string | null;
+  item_ids: string[] | null;
+  favorited: boolean | null;
+}
+
+function dbRowToLook(row: LookRow): Look {
+  return {
+    id: row.id,
+    title: row.title || "Look sin nombre",
+    date: row.look_date || "",
+    favorited: Boolean(row.favorited),
+    items: row.item_ids ?? [],
+  };
+}
+
 export default function LooksScreen() {
   const [tab, setTab] = useState<TabKey>("mis");
-  const [looks, setLooks] = useState<Look[]>(mockLooks);
+  const [looks, setLooks] = useState<Look[]>([]);
+  const { user } = useAuth();
+
+  useFocusEffect(
+    useCallback(() => {
+      if (isMockMode || !supabase || !user) {
+        setLooks(mockLooks);
+        return;
+      }
+      let cancelled = false;
+      void supabase
+        .from("looks")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .then(({ data }) => {
+          if (!cancelled) setLooks(((data ?? []) as LookRow[]).map(dbRowToLook));
+        });
+      return () => {
+        cancelled = true;
+      };
+    }, [user])
+  );
 
   const visible = useMemo(
     () => (tab === "favoritos" ? looks.filter((l) => l.favorited) : looks),
@@ -23,13 +66,23 @@ export default function LooksScreen() {
     setLooks((prev) =>
       prev.map((l) => (l.id === id ? { ...l, favorited: !l.favorited } : l))
     );
+    if (!isMockMode && supabase && user) {
+      const next = looks.find((l) => l.id === id);
+      if (next) {
+        void supabase
+          .from("looks")
+          .update({ favorited: !next.favorited })
+          .eq("id", id)
+          .eq("user_id", user.id);
+      }
+    }
   }
 
   const Header = (
     <View style={styles.header}>
       <View style={styles.titleRow}>
         <View>
-          <Text style={styles.eyebrow}>12 CONJUNTOS</Text>
+          <Text style={styles.eyebrow}>{looks.length} CONJUNTOS</Text>
           <Text style={styles.title}>
             Mis <Text style={styles.titleItalic}>looks</Text>
           </Text>

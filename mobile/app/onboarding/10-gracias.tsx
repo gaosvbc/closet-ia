@@ -9,16 +9,53 @@ import AccentTitle from "@/components/onboarding/AccentTitle";
 import { setOnboardingComplete } from "@/lib/storage";
 import { colors } from "@/constants/colors";
 import { fonts } from "@/constants/typography";
+import { useOnboarding } from "@/lib/onboarding-context";
+import { useAuth } from "@/lib/auth/AuthContext";
+import { isMockMode, supabase } from "@/lib/supabase";
+
+const HEIGHT_TO_CM = (value: number, unit: "cm" | "ft") =>
+  unit === "cm" ? value : Math.round(value * 30.48 * 10) / 10;
+const WEIGHT_TO_KG = (value: number, unit: "kg" | "lbs") =>
+  unit === "kg" ? value : Math.round(value * 0.453592 * 10) / 10;
+
+function genderExpressionFromClothingType(types: string[]): string | null {
+  if (types.length === 0) return null;
+  if (types.includes("feminine") && types.includes("masculine")) return "Mix";
+  return types.includes("feminine") ? "Feminine" : "Masculine";
+}
 
 export default function Gracias() {
   const router = useRouter();
   const [finishing, setFinishing] = useState(false);
   const scale = useRef(new Animated.Value(0.6)).current;
+  const { data } = useOnboarding();
+  const { user } = useAuth();
 
   async function finish() {
     if (finishing) return;
     setFinishing(true);
-    await setOnboardingComplete();
+
+    // Single bulk write of every onboarding answer collected across the 10
+    // screens — not screen by screen — plus onboarding_completed: true.
+    if (!isMockMode && supabase && user) {
+      await supabase
+        .from("user_profiles")
+        .update({
+          gender: data.gender,
+          height_cm: HEIGHT_TO_CM(data.height, data.heightUnit),
+          weight_kg: WEIGHT_TO_KG(data.weight, data.weightUnit),
+          body_type: data.bodyType,
+          gender_expression: genderExpressionFromClothingType(data.clothingType),
+          occupation: data.occupation,
+          preferred_brands: data.brands,
+          acquisition_source: data.source,
+          onboarding_completed: true,
+        })
+        .eq("id", user.id);
+    } else {
+      await setOnboardingComplete();
+    }
+
     router.replace("/(tabs)");
   }
 

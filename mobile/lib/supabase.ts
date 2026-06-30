@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 // Supabase client with a safe fallback "mock mode". When the EXPO_PUBLIC_*
@@ -11,4 +12,11 @@ export const isMockMode = !url || !key;
 
 export const supabase: SupabaseClient | null = isMockMode
   ? null
-  : createClient(url as string, key as string);
+  : createClient(url as string, key as string, {
+      auth: {
+        storage: AsyncStorage,
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: false,
+      },
+    });

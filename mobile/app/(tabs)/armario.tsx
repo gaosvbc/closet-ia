@@ -11,26 +11,48 @@ import { getAddedItems } from "@/lib/wardrobe-store";
 import { colors } from "@/constants/colors";
 import { fonts } from "@/constants/typography";
 import type { ClothingItem } from "@/types";
+import { useAuth } from "@/lib/auth/AuthContext";
+import { isMockMode, supabase } from "@/lib/supabase";
+import { dbRowToClothingItem, type ClothingItemRow } from "@/lib/ai-mapping";
 
 export default function ArmarioScreen() {
   const [active, setActive] = useState<string>("Todo");
   const [addedItems, setAddedItems] = useState<ClothingItem[]>([]);
+  const { user } = useAuth();
 
-  // Re-read scanned items every time this tab gains focus, so an item saved
-  // from the camera flow shows up immediately on return.
+  // Re-read items every time this tab gains focus: real Supabase rows
+  // scoped to the authenticated user when configured, otherwise the locally
+  // scanned items merged with the bundled demo data (mock mode).
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
-      void getAddedItems().then((items) => {
-        if (!cancelled) setAddedItems(items);
-      });
+
+      if (!isMockMode && supabase && user) {
+        void supabase
+          .from("clothing_items")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .then(({ data }) => {
+            if (cancelled) return;
+            setAddedItems(((data ?? []) as ClothingItemRow[]).map(dbRowToClothingItem));
+          });
+      } else {
+        void getAddedItems().then((items) => {
+          if (!cancelled) setAddedItems(items);
+        });
+      }
+
       return () => {
         cancelled = true;
       };
-    }, [])
+    }, [user])
   );
 
-  const allItems = useMemo(() => [...addedItems, ...clothingItems], [addedItems]);
+  const allItems = useMemo(
+    () => (!isMockMode && user ? addedItems : [...addedItems, ...clothingItems]),
+    [addedItems, user]
+  );
 
   const items = useMemo(() => {
     if (active === "Todo") return allItems;
@@ -42,7 +64,7 @@ export default function ArmarioScreen() {
       <View style={styles.titleRow}>
         <View>
           <Text style={styles.eyebrow}>
-            {userProfile.stats.prendas} PRENDAS
+            {!isMockMode && user ? allItems.length : userProfile.stats.prendas} PRENDAS
           </Text>
           <Text style={styles.title}>
             Mi <Text style={styles.titleItalic}>armario</Text>

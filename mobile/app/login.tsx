@@ -9,70 +9,47 @@ import Button from "@/components/ui/Button";
 import { colors } from "@/constants/colors";
 import { fonts } from "@/constants/typography";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { isMockMode, supabase } from "@/lib/supabase";
-import { signUpSchema } from "@/lib/auth/validation";
+import { isMockMode } from "@/lib/supabase";
+import { signInSchema } from "@/lib/auth/validation";
 
-// In mock mode (no Supabase env vars) this is a demo form with no backend
-// call — "Crear cuenta" just moves into onboarding. With real credentials
-// configured, it creates the Supabase Auth account and a minimal
-// user_profiles row; the rest of the onboarding answers are written in one
-// shot at the end of the flow (see onboarding/10-gracias.tsx).
-export default function Register() {
+// Real sign-in screen. In mock mode there's no backend to authenticate
+// against, so this just drops the visitor straight into the app, matching
+// the rest of the demo experience.
+export default function Login() {
   const router = useRouter();
-  const { signUp } = useAuth();
-  const [name, setName] = useState("");
+  const { signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const canSubmit = name.trim().length > 0 && email.trim().length > 0 && password.length > 0;
+  const canSubmit = email.trim().length > 0 && password.length > 0;
 
   async function submit() {
     if (!canSubmit || submitting) return;
     setError(null);
 
     if (isMockMode) {
-      router.replace("/onboarding/01-que-usas");
+      router.replace("/(tabs)");
       return;
     }
 
-    const parsed = signUpSchema.safeParse({ name, email, password });
+    const parsed = signInSchema.safeParse({ email, password });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? "Revisa los datos ingresados.");
       return;
     }
 
     setSubmitting(true);
-    const result = await signUp(parsed.data.email, parsed.data.password, parsed.data.name);
+    const result = await signIn(parsed.data.email, parsed.data.password);
+    setSubmitting(false);
     if (!result.ok) {
       setError(result.error);
-      setSubmitting(false);
       return;
     }
-
-    // Best-effort minimal profile row — the full onboarding answers are
-    // written in a single update at the end of the flow. If this fails (e.g.
-    // email confirmation is required and there's no session yet), onboarding
-    // can still proceed locally; the row is created on first real session.
-    if (supabase) {
-      const { data } = await supabase.auth.getUser();
-      if (data.user) {
-        await supabase.from("user_profiles").insert({
-          id: data.user.id,
-          full_name: parsed.data.name,
-          email: parsed.data.email,
-          onboarding_completed: false,
-        });
-      }
-    }
-
-    setSubmitting(false);
-    router.replace("/onboarding/01-que-usas");
-  }
-
-  function goToLogin() {
-    router.push("/login");
+    // app/index.tsx decides between resuming onboarding or going to the
+    // tabs based on the session + profile it loads.
+    router.replace("/");
   }
 
   return (
@@ -81,21 +58,13 @@ export default function Register() {
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <View style={styles.header}>
-            <AccentTitle normal="Crea tu " accent="cuenta" />
+            <AccentTitle normal="Inicia " accent="sesión" />
             <Text style={styles.subtitle}>
-              Guarda tu armario y tus looks para acceder desde cualquier dispositivo.
+              Accede a tu armario y tus looks guardados.
             </Text>
           </View>
 
           <View style={styles.form}>
-            <Input
-              label="Nombre"
-              value={name}
-              onChangeText={setName}
-              placeholder="Tu nombre"
-              autoCapitalize="words"
-              autoComplete="name"
-            />
             <Input
               label="Email"
               value={email}
@@ -114,14 +83,17 @@ export default function Register() {
               autoComplete="password"
             />
             {error && <Text style={styles.error}>{error}</Text>}
+            <Pressable accessibilityRole="button" style={styles.forgotLink}>
+              <Text style={styles.forgotText}>¿Olvidaste tu contraseña? Contacta soporte.</Text>
+            </Pressable>
           </View>
         </ScrollView>
 
         <View style={styles.footer}>
-          <Button label="Crear cuenta" onPress={submit} disabled={!canSubmit} loading={submitting} />
-          <Pressable onPress={goToLogin} accessibilityRole="button" style={styles.signInLink}>
+          <Button label="Iniciar sesión" onPress={submit} disabled={!canSubmit} loading={submitting} />
+          <Pressable onPress={() => router.replace("/register")} accessibilityRole="button" style={styles.signInLink}>
             <Text style={styles.signInText}>
-              ¿Ya tienes cuenta? <Text style={styles.signInAccent}>Iniciar sesión</Text>
+              ¿No tienes cuenta? <Text style={styles.signInAccent}>Crear cuenta</Text>
             </Text>
           </Pressable>
         </View>
@@ -138,6 +110,8 @@ const styles = StyleSheet.create({
   subtitle: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: colors.textSecondary },
   form: { gap: 16 },
   error: { fontFamily: fonts.body, fontSize: 13, color: colors.accent },
+  forgotLink: { alignItems: "flex-start" },
+  forgotText: { fontFamily: fonts.body, fontSize: 13, color: colors.textSecondary },
   footer: { gap: 16, paddingHorizontal: 24, paddingTop: 12, paddingBottom: 12 },
   signInLink: { alignItems: "center" },
   signInText: { fontFamily: fonts.body, fontSize: 14, color: colors.textSecondary },

@@ -19,7 +19,8 @@ import { fonts, eyebrow } from "@/constants/typography";
 import { analyzeClothing } from "@/lib/api/analyzeClothing";
 import { getUserId } from "@/lib/user";
 import { addItem } from "@/lib/wardrobe-store";
-import { mapAiCategory, colorNameToHex } from "@/lib/ai-mapping";
+import { mapAiCategory, mapCategoryToAi, colorNameToHex } from "@/lib/ai-mapping";
+import { isMockMode, supabase } from "@/lib/supabase";
 import type { ClothingAnalysis, ClothingCategory } from "@/types";
 
 const CATEGORIES: ClothingCategory[] = ["Prendas", "Zapatos", "Accesorios", "Bolsos"];
@@ -71,25 +72,54 @@ export default function ItemReviewScreen() {
 
   async function handleSave() {
     setSaving(true);
-    const shape = analysis ? mapAiCategory(analysis.category).shape : "square";
-    await addItem({
-      id: `${Date.now()}`,
-      name: name.trim() || "Prenda sin nombre",
-      color: colorNameToHex(color || "grey"),
-      shape,
-      category,
-      favorited: false,
-      imageUri: uri,
-      type: analysis?.type,
-      material: analysis?.material,
-      pattern: analysis?.pattern,
-      season: analysis?.season,
-      formality: analysis?.formality,
-      idealTempRangeCelsius: analysis?.idealTempRangeCelsius,
-      occasions: analysis?.occasions,
-      styleDescriptors: analysis?.styleDescriptors,
-      pairingSuggestions: analysis?.pairingSuggestions,
-    });
+
+    if (!isMockMode && supabase) {
+      const userId = await getUserId();
+      const dbCategory =
+        analysis?.category && mapAiCategory(analysis.category).category === category
+          ? analysis.category
+          : mapCategoryToAi(category);
+
+      await supabase.from("clothing_items").insert({
+        user_id: userId,
+        image_url: uri ?? null,
+        name: name.trim() || "Prenda sin nombre",
+        type: analysis?.type ?? null,
+        color: color || "grey",
+        category: dbCategory,
+        material: analysis?.material ?? null,
+        pattern: analysis?.pattern ?? null,
+        season: analysis?.season ?? null,
+        formality: analysis?.formality ?? null,
+        ideal_temp_min: analysis?.idealTempRangeCelsius?.min ?? null,
+        ideal_temp_max: analysis?.idealTempRangeCelsius?.max ?? null,
+        occasions: analysis?.occasions ?? null,
+        style_descriptors: analysis?.styleDescriptors ?? null,
+        pairing_suggestions: analysis?.pairingSuggestions ?? null,
+        favorited: false,
+      });
+    } else {
+      const shape = analysis ? mapAiCategory(analysis.category).shape : "square";
+      await addItem({
+        id: `${Date.now()}`,
+        name: name.trim() || "Prenda sin nombre",
+        color: colorNameToHex(color || "grey"),
+        shape,
+        category,
+        favorited: false,
+        imageUri: uri,
+        type: analysis?.type,
+        material: analysis?.material,
+        pattern: analysis?.pattern,
+        season: analysis?.season,
+        formality: analysis?.formality,
+        idealTempRangeCelsius: analysis?.idealTempRangeCelsius,
+        occasions: analysis?.occasions,
+        styleDescriptors: analysis?.styleDescriptors,
+        pairingSuggestions: analysis?.pairingSuggestions,
+      });
+    }
+
     setSaving(false);
     router.replace("/(tabs)/armario");
   }
