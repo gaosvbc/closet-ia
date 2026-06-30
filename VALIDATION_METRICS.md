@@ -1,6 +1,6 @@
 # Validation Metrics
 
-How we decide whether Visual Closet Tracker is worth building. Run the landing
+How we decide whether AtelIA is worth building. Run the landing
 page, demo, onboarding, and waitlist, then measure against the criteria below.
 
 > Run for a **minimum of 14 days** before making any GO / NO-GO decision. Early

@@ -13,9 +13,9 @@ export default function SiteNav() {
         <Link
           href="/"
           className="font-heading text-lg tracking-tight text-ink"
-          aria-label="Visual Closet Tracker home"
+          aria-label="AtelIA home"
         >
-          Visual Closet Tracker
+          AtelIA
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">

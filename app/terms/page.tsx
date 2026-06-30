@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import LegalLayout from "@/components/LegalLayout";
 
 export const metadata: Metadata = {
-  title: "Terms of Service — Visual Closet Tracker",
-  description: "The terms governing your use of Visual Closet Tracker.",
+  title: "Terms of Service — AtelIA",
+  description: "The terms governing your use of AtelIA.",
 };
 
 export default function TermsPage() {
@@ -11,7 +11,7 @@ export default function TermsPage() {
     <LegalLayout title="Terms of Service" updated="June 2026">
       <section>
         <p>
-          These terms are a template for the Visual Closet Tracker validation
+          These terms are a template for the AtelIA validation
           phase. Replace this placeholder copy with terms reviewed by qualified
           counsel before going live.
         </p>
@@ -20,7 +20,7 @@ export default function TermsPage() {
       <section>
         <h2>The service</h2>
         <p>
-          Visual Closet Tracker is an early-stage product being validated with a
+          AtelIA is an early-stage product being validated with a
           waitlist and an interactive demo. Features described on this site are
           planned and may change. No paid service is currently offered.
         </p>

@@ -4,9 +4,9 @@ import SiteFooter from "@/components/SiteFooter";
 import WaitlistForm from "@/components/WaitlistForm";
 
 export const metadata: Metadata = {
-  title: "Join the waitlist — Visual Closet Tracker",
+  title: "Join the waitlist — AtelIA",
   description:
-    "Join the Visual Closet Tracker waitlist and help shape the app. Free, no payment, no login.",
+    "Join the AtelIA waitlist and help shape the app. Free, no payment, no login.",
 };
 
 export default function WaitlistPage() {

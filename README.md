@@ -1,10 +1,10 @@
-# Visual Closet Tracker — V2 MVP
+# AtelIA — V2 MVP
 
 **Dressed for your body. Your day. Your life.**
 
 An AI-powered wardrobe assistant that knows your measurements, your calendar,
 and your clothes — and puts them together every morning without you lifting a
-finger. Unlike social, trend-led closet apps, Visual Closet Tracker is
+finger. Unlike social, trend-led closet apps, AtelIA is
 personal, private, and intelligent, with a luxury European design sensibility.
 
 This repository is the **validation MVP**: a polished landing page, an

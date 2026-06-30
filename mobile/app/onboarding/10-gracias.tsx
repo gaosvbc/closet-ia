@@ -41,7 +41,7 @@ export default function Gracias() {
         </Animated.View>
         <AccentTitle normal="Gracias por " accent="confiar" style={styles.title} />
         <Text style={styles.subtitle}>
-          Ahora personalizamos Closet IA para ti…
+          Ahora personalizamos AtelIA para ti…
         </Text>
         <LoadingDots />
       </View>

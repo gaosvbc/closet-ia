@@ -18,15 +18,15 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Visual Closet Tracker — Dressed for your body. Your day. Your life.",
+  title: "AtelIA — Your AI Personal Stylist",
   description:
     "The AI wardrobe assistant that knows your measurements, your calendar, and your clothes — and puts them together every morning without you lifting a finger.",
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
   ),
   openGraph: {
-    title: "Visual Closet Tracker",
-    description: "Dressed for your body. Your day. Your life.",
+    title: "AtelIA",
+    description: "Your AI Personal Stylist",
     type: "website",
   },
 };

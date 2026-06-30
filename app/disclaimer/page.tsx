@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import LegalLayout from "@/components/LegalLayout";
 
 export const metadata: Metadata = {
-  title: "Disclaimer — Visual Closet Tracker",
-  description: "Important notes about Visual Closet Tracker's suggestions.",
+  title: "Disclaimer — AtelIA",
+  description: "Important notes about AtelIA's suggestions.",
 };
 
 export default function DisclaimerPage() {
@@ -11,7 +11,7 @@ export default function DisclaimerPage() {
     <LegalLayout title="Disclaimer" updated="June 2026">
       <section>
         <p>
-          Visual Closet Tracker provides outfit suggestions for inspiration
+          AtelIA provides outfit suggestions for inspiration
           only. All style decisions remain yours.
         </p>
       </section>
