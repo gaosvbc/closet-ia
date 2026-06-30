@@ -6,6 +6,20 @@ export type ClothingCategory =
   | "Accesorios"
   | "Bolsos";
 
+// Fine-grained slot within "Prendas" (top/bottom/dress/outerwear), classified
+// directly by Claude Vision at analysis time — same pattern as `category`.
+// "na" for items whose category already fully describes them (Zapatos,
+// Accesorios, Bolsos).
+export type GarmentSlot =
+  | "top"
+  | "bottom"
+  | "dress"
+  | "outerwear"
+  | "footwear"
+  | "accessory"
+  | "bag"
+  | "na";
+
 export interface ClothingItem {
   id: string;
   name: string;
@@ -18,6 +32,7 @@ export interface ClothingItem {
   // plan allows — undefined fields simply mean that tier doesn't include
   // them, not that analysis failed.
   type?: string;
+  garmentSlot?: GarmentSlot;
   material?: string;
   pattern?: string;
   season?: string;
@@ -37,6 +52,7 @@ export interface ClothingAnalysis {
   type: string;
   color: string;
   category: ClothingCategory;
+  garmentSlot: GarmentSlot;
   material?: string;
   pattern?: string;
   season?: string;
