@@ -21,7 +21,8 @@
       "infoPlist": {
         "NSCameraUsageDescription": "We use the camera so you can scan and catalogue your wardrobe.",
         "NSPhotoLibraryUsageDescription": "We access your photos so you can add existing pictures of your clothes.",
-        "NSLocationWhenInUseUsageDescription": "We use your location to show accurate local weather for outfit suggestions."
+        "NSLocationWhenInUseUsageDescription": "We use your location to show accurate local weather for outfit suggestions.",
+        "NSMicrophoneUsageDescription": "We use the microphone so you can talk to your AI stylist in the Magic Mirror."
       }
     },
     "android": {
@@ -30,7 +31,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#8B1524"
       },
-      "permissions": ["CAMERA", "ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
+      "permissions": ["CAMERA", "RECORD_AUDIO", "ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
     },
     "web": {
       "bundler": "metro",
@@ -54,6 +55,12 @@
         "expo-location",
         {
           "locationWhenInUsePermission": "We use your location to show accurate local weather for outfit suggestions."
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "We use the microphone so you can talk to your AI stylist in the Magic Mirror."
         }
       ]
     ],
