@@ -4,6 +4,7 @@ import LegalLayout from "@/components/LegalLayout";
 export const metadata: Metadata = {
   title: "Terms of Service — AtelIA",
   description: "The terms governing your use of AtelIA.",
+  alternates: { canonical: "/terms" },
 };
 
 export default function TermsPage() {

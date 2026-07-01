@@ -4,6 +4,7 @@ import LegalLayout from "@/components/LegalLayout";
 export const metadata: Metadata = {
   title: "Disclaimer — AtelIA",
   description: "Important notes about AtelIA's suggestions.",
+  alternates: { canonical: "/disclaimer" },
 };
 
 export default function DisclaimerPage() {
