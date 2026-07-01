@@ -69,6 +69,8 @@ export const featureVoteSchema = z.object({
   email: emailSchema.optional().or(z.literal("")),
   featureKey: z.string().trim().min(1).max(64),
   featureLabel: z.string().trim().min(1).max(160),
+  // Honeypot — must stay empty.
+  company: z.string().max(0).optional().or(z.literal("")),
 });
 
 export type FeatureVoteInput = z.infer<typeof featureVoteSchema>;
@@ -77,6 +79,8 @@ export const priceVoteSchema = z.object({
   email: emailSchema.optional().or(z.literal("")),
   planSelected: z.enum(["essential", "pro"]),
   billingPreference: z.enum(["monthly", "annual"]).optional(),
+  // Honeypot — must stay empty.
+  company: z.string().max(0).optional().or(z.literal("")),
 });
 
 export type PriceVoteInput = z.infer<typeof priceVoteSchema>;
@@ -84,6 +88,8 @@ export type PriceVoteInput = z.infer<typeof priceVoteSchema>;
 export const pageEventSchema = z.object({
   eventName: z.string().trim().min(1).max(80),
   metadata: z.record(z.unknown()).optional(),
+  // Honeypot — must stay empty.
+  company: z.string().max(0).optional().or(z.literal("")),
 });
 
 export type PageEventInput = z.infer<typeof pageEventSchema>;

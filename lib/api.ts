@@ -20,6 +20,13 @@ export function serverError(message = "Something went wrong. Please try again.")
   return NextResponse.json({ ok: false, error: message }, { status: 500 });
 }
 
+export function tooManyRequests(retryAfterSecs = 60) {
+  return NextResponse.json(
+    { ok: false, error: "Too many requests. Please try again later." },
+    { status: 429, headers: { "Retry-After": String(retryAfterSecs) } }
+  );
+}
+
 /** Turn a Zod error into a single friendly, user-safe message. */
 export function firstZodMessage(error: ZodError): string {
   return error.issues[0]?.message ?? "Please check your details and try again.";

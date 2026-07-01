@@ -2,9 +2,17 @@ import { analyzeClothingItem } from "@/lib/ai/clothing-analysis";
 import { logVisionUsage } from "@/lib/ai/usage-tracking";
 import { getUserPlanTier } from "@/lib/supabase/user";
 import { getAuthenticatedUserId } from "@/lib/supabase/auth";
-import { badRequest, ok, readJson, serverError, unauthorized } from "@/lib/api";
+import { badRequest, ok, readJson, serverError, tooManyRequests, unauthorized } from "@/lib/api";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
+
+// 4.5 MB decoded ≈ 6 MB base64 (base64 overhead is ~33%).
+const MAX_IMAGE_BASE64_LEN = 6_000_000;
+
+// 10 analyses per hour per IP — tight because each call charges Anthropic tokens.
+const RATE_WINDOW_SECS = 3600;
+const RATE_MAX = 10;
 
 interface AnalyzeClothingBody {
   imageBase64?: string;
@@ -24,6 +32,10 @@ export async function POST(request: Request) {
   const userId = await getAuthenticatedUserId(request);
   if (!userId) return unauthorized();
 
+  const ip = getClientIp(request);
+  const rl = checkRateLimit(`${ip}:analyze-clothing`, RATE_WINDOW_SECS, RATE_MAX);
+  if (!rl.allowed) return tooManyRequests(rl.retryAfterSecs);
+
   const body = await readJson<AnalyzeClothingBody>(request);
   if (!body) return badRequest();
 
@@ -31,6 +43,10 @@ export async function POST(request: Request) {
 
   if (!imageBase64 || !mediaType) {
     return badRequest("Missing required fields");
+  }
+
+  if (imageBase64.length > MAX_IMAGE_BASE64_LEN) {
+    return badRequest("Image exceeds maximum allowed size (4.5 MB)");
   }
 
   if (!ALLOWED_MEDIA_TYPES.has(mediaType)) {
