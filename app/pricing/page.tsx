@@ -4,11 +4,15 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import Pricing from "@/components/Pricing";
 import Comparison from "@/components/Comparison";
+import JsonLd from "@/components/JsonLd";
 
 export const metadata: Metadata = {
   title: "Pricing — AtelIA",
   description:
     "Two plans: Essential and Pro. Every plan starts with a 7-day free trial — cancel any time and pay nothing.",
+  alternates: {
+    canonical: "/pricing",
+  },
 };
 
 const FAQ = [
@@ -37,6 +41,20 @@ const FAQ = [
 export default function PricingPage() {
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: FAQ.map((item) => ({
+            "@type": "Question",
+            name: item.q,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: item.a,
+            },
+          })),
+        }}
+      />
       <SiteNav />
       <main>
         <section className="section pb-0 text-center">

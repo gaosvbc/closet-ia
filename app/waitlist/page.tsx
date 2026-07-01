@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Join the waitlist — AtelIA",
   description:
     "Join the AtelIA waitlist and help shape the app. Free, no payment, no login.",
+  alternates: { canonical: "/waitlist" },
 };
 
 export default function WaitlistPage() {
