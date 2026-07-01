@@ -71,3 +71,68 @@ export function getClientIp(request: Request): string {
     "unknown"
   );
 }
+
+// ---------------------------------------------------------------------------
+// Admin login brute-force tracking (separate from the generic rate limiter).
+// Tracks only *failed* logins; successful logins clear the counter.
+// ---------------------------------------------------------------------------
+
+interface LoginWindow {
+  failures: number;
+  windowStart: number;
+}
+
+const LOGIN_MAX_FAILURES = 5;
+const LOGIN_LOCKOUT_SECS = 15 * 60; // 15 minutes
+
+const loginAttempts = new Map<string, LoginWindow>();
+
+export interface LoginCheckResult {
+  blocked: boolean;
+  failureCount: number;
+  retryAfterSecs: number;
+}
+
+/** Return whether an IP is currently locked out from the admin login. */
+export function isLoginBlocked(ip: string): LoginCheckResult {
+  const entry = loginAttempts.get(ip);
+  if (!entry) return { blocked: false, failureCount: 0, retryAfterSecs: 0 };
+
+  const ageMs = Date.now() - entry.windowStart;
+  if (ageMs >= LOGIN_LOCKOUT_SECS * 1000) {
+    loginAttempts.delete(ip);
+    return { blocked: false, failureCount: 0, retryAfterSecs: 0 };
+  }
+
+  if (entry.failures >= LOGIN_MAX_FAILURES) {
+    const retryAfterSecs = Math.ceil(
+      (entry.windowStart + LOGIN_LOCKOUT_SECS * 1000 - Date.now()) / 1000
+    );
+    return { blocked: true, failureCount: entry.failures, retryAfterSecs };
+  }
+
+  return { blocked: false, failureCount: entry.failures, retryAfterSecs: 0 };
+}
+
+/** Record a failed login attempt for an IP. Returns the updated state. */
+export function recordFailedLogin(ip: string): LoginCheckResult {
+  const now = Date.now();
+  const existing = loginAttempts.get(ip);
+
+  if (!existing || now - existing.windowStart >= LOGIN_LOCKOUT_SECS * 1000) {
+    loginAttempts.set(ip, { failures: 1, windowStart: now });
+    return { blocked: false, failureCount: 1, retryAfterSecs: 0 };
+  }
+
+  existing.failures += 1;
+  const blocked = existing.failures >= LOGIN_MAX_FAILURES;
+  const retryAfterSecs = blocked
+    ? Math.ceil((existing.windowStart + LOGIN_LOCKOUT_SECS * 1000 - now) / 1000)
+    : 0;
+  return { blocked, failureCount: existing.failures, retryAfterSecs };
+}
+
+/** Clear the failed login counter for an IP on successful authentication. */
+export function clearLoginAttempts(ip: string): void {
+  loginAttempts.delete(ip);
+}

@@ -40,7 +40,7 @@ cp .env.example .env.local
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR-PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
-ADMIN_PASSWORD=choose-a-strong-password
+ADMIN_PASSWORD=<use openssl rand -hex 24 to generate>
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 

@@ -20,7 +20,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: { error?: string };
+  searchParams: { error?: string; retry?: string };
 }) {
   // 1) ADMIN_PASSWORD not set → clear setup message, never crash.
   if (!isAdminConfigured()) {
@@ -65,9 +65,18 @@ export default async function AdminPage({
                 className="field-input"
               />
             </div>
-            {searchParams?.error && (
+            {searchParams?.error === "1" && (
               <p className="text-sm text-ink">
                 Incorrect password. Please try again.
+              </p>
+            )}
+            {searchParams?.error === "2" && (
+              <p className="text-sm text-ink">
+                Too many failed attempts. Please wait{" "}
+                {searchParams.retry
+                  ? `${Math.ceil(Number(searchParams.retry) / 60)} minute(s)`
+                  : "a few minutes"}{" "}
+                before trying again.
               </p>
             )}
             <button type="submit" className="btn btn-primary w-full">
