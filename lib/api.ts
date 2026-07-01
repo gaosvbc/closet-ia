@@ -12,6 +12,10 @@ export function badRequest(message = "Invalid submission") {
   return NextResponse.json({ ok: false, error: message }, { status: 400 });
 }
 
+export function unauthorized(message = "Authentication required") {
+  return NextResponse.json({ ok: false, error: message }, { status: 401 });
+}
+
 export function serverError(message = "Something went wrong. Please try again.") {
   return NextResponse.json({ ok: false, error: message }, { status: 500 });
 }
