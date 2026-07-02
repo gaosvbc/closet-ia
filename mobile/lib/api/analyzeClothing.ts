@@ -32,15 +32,20 @@ const FALLBACK_MESSAGE =
 
 /**
  * Analyzes a captured clothing photo via the AtelIA backend. Never throws —
- * any failure (network, server, timeout) resolves to `ok: false` with a
- * friendly message so the caller can fall back to an empty, editable form
- * without ever blocking the user from saving the item.
+ * any failure (network, server, timeout, or missing auth) resolves to
+ * `ok: false` with a friendly message so the caller can fall back to an
+ * empty, editable form without ever blocking the user from saving the item.
+ *
+ * `accessToken` must be the current Supabase session's access token — the
+ * server derives identity from it exclusively (never from a body field), so
+ * without a real session there's nothing valid to send and the analysis
+ * skips straight to the manual-fallback path.
  */
 export async function analyzeClothing(
   imageUri: string,
-  userId: string
+  accessToken: string | null
 ): Promise<AnalyzeClothingResult> {
-  if (!isApiConfigured) {
+  if (!isApiConfigured || !accessToken) {
     return { ok: false, analysis: null, error: FALLBACK_MESSAGE };
   }
 
@@ -59,11 +64,13 @@ export async function analyzeClothing(
         `${API_URL}/api/analyze-clothing`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
           body: JSON.stringify({
             imageBase64: base64,
             mediaType: "image/jpeg",
-            userId,
           }),
         },
         REQUEST_TIMEOUT_MS

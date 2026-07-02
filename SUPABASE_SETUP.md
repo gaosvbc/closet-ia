@@ -40,7 +40,7 @@ cp .env.example .env.local
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR-PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
-ADMIN_PASSWORD=choose-a-strong-password
+ADMIN_PASSWORD=<use openssl rand -hex 24 to generate>
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
@@ -116,7 +116,72 @@ never blocked by analysis failing. Every successful call is logged to
 `vision_api_usage` with token counts and an estimated cost (Haiku 4.5 rates:
 $1 / $5 per million input / output tokens).
 
-## 5b. Gemini Live (Magic Mirror — Elite plan beta)
+## 5b. Storage bucket: clothing photos
+
+`clothing_items.image_url` stores photos of each garment. These photos live
+in the Supabase Storage bucket **`clothing-photos`**, created by migration
+`007_storage_rls.sql`.
+
+### Bucket configuration
+
+| Setting | Value | Reason |
+| --- | --- | --- |
+| Bucket ID / name | `clothing-photos` | Matches the path used in code |
+| Visibility | **Private** (not public) | Photos can include personal context beyond the garment (home interiors, reflections, other people). A public bucket exposes every photo to anyone who knows or guesses the URL. |
+| File size limit | 5 MB per object | Prevents oversized uploads; the API route also rejects base64 > 6 MB before forwarding to Anthropic. |
+| Allowed MIME types | `image/jpeg`, `image/png`, `image/webp` | |
+
+### How photos are stored and read
+
+**Uploading**: files are organized as `{user_id}/{uuid}.jpg` (the `{user_id}`
+prefix is enforced by the Storage RLS policies — see below). The mobile app
+calls `supabase.storage.from('clothing-photos').upload(path, file)` from the
+authenticated client.
+
+**Reading**: photos are **never served via a permanent public URL**. Every
+time a photo is displayed, the server or mobile client calls:
+
+```ts
+const { data } = await supabase.storage
+  .from('clothing-photos')
+  .createSignedUrl(`${userId}/${filename}`, 3600); // expires in 1 hour
+// store data.signedUrl in component state, never in the DB
+```
+
+`clothing_items.image_url` stores only the **storage path** (e.g.
+`{user_id}/{uuid}.jpg`), not the full URL. The signed URL is generated at
+display time and is never cached to disk or persisted.
+
+### Storage RLS policies (migration 007)
+
+The bucket is private by default, so any unauthenticated request returns 403.
+Additionally, four explicit policies on `storage.objects` restrict each
+authenticated user to their own folder:
+
+| Policy | Operation | Rule |
+| --- | --- | --- |
+| `users_upload_own_photos` | INSERT | `(storage.foldername(name))[1] = auth.uid()::text` |
+| `users_read_own_photos` | SELECT | same |
+| `users_update_own_photos` | UPDATE | same |
+| `users_delete_own_photos` | DELETE | same |
+
+This means user A can never read, upload, update, or delete any object in
+user B's folder — even if they know the exact path.
+
+### Quick audit check
+
+```sql
+-- Confirm the bucket is private
+select id, name, public from storage.buckets where id = 'clothing-photos';
+-- public column must be false
+
+-- Confirm RLS policies exist
+select policyname, cmd from pg_policies
+where schemaname = 'storage' and tablename = 'objects'
+  and policyname like '%photos%';
+```
+
+## 5c. Gemini Live (Magic Mirror — Elite plan beta)
 
 The Magic Mirror ("Espejo Mágico") is a real-time conversational styling
 session — the camera sees the user, they talk by voice, AtelIA responds by

@@ -12,8 +12,19 @@ export function badRequest(message = "Invalid submission") {
   return NextResponse.json({ ok: false, error: message }, { status: 400 });
 }
 
+export function unauthorized(message = "Authentication required") {
+  return NextResponse.json({ ok: false, error: message }, { status: 401 });
+}
+
 export function serverError(message = "Something went wrong. Please try again.") {
   return NextResponse.json({ ok: false, error: message }, { status: 500 });
+}
+
+export function tooManyRequests(retryAfterSecs = 60) {
+  return NextResponse.json(
+    { ok: false, error: "Too many requests. Please try again later." },
+    { status: 429, headers: { "Retry-After": String(retryAfterSecs) } }
+  );
 }
 
 /** Turn a Zod error into a single friendly, user-safe message. */

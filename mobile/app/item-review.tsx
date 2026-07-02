@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import { colors } from "@/constants/colors";
 import { fonts, eyebrow } from "@/constants/typography";
 import { analyzeClothing } from "@/lib/api/analyzeClothing";
 import { getUserId } from "@/lib/user";
+import { useAuth } from "@/lib/auth/AuthContext";
 import { addItem } from "@/lib/wardrobe-store";
 import { categoryToShape, colorNameToHex } from "@/lib/ai-mapping";
 import { isMockMode, supabase } from "@/lib/supabase";
@@ -31,10 +32,17 @@ const CATEGORIES: ClothingCategory[] = ["Prendas", "Zapatos", "Accesorios", "Bol
 export default function ItemReviewScreen() {
   const router = useRouter();
   const { uri } = useLocalSearchParams<{ uri: string }>();
+  const { session, loading: authLoading } = useAuth();
 
   const [analyzing, setAnalyzing] = useState(true);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<ClothingAnalysis | null>(null);
+
+  // Read via ref inside the effect below so a token refresh (which produces
+  // a new `session` object) never re-triggers analysis of the same photo —
+  // only the initial auth-loading resolution and a changed `uri` should.
+  const sessionRef = useRef(session);
+  sessionRef.current = session;
 
   const [name, setName] = useState("");
   const [color, setColor] = useState("");
@@ -42,6 +50,8 @@ export default function ItemReviewScreen() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    if (authLoading) return; // wait for the initial session check to resolve
+
     let cancelled = false;
 
     async function run() {
@@ -49,8 +59,7 @@ export default function ItemReviewScreen() {
         setAnalyzing(false);
         return;
       }
-      const userId = await getUserId();
-      const result = await analyzeClothing(uri, userId);
+      const result = await analyzeClothing(uri, sessionRef.current?.access_token ?? null);
       if (cancelled) return;
 
       if (result.ok && result.analysis) {
@@ -68,7 +77,7 @@ export default function ItemReviewScreen() {
     return () => {
       cancelled = true;
     };
-  }, [uri]);
+  }, [uri, authLoading]);
 
   async function handleSave() {
     setSaving(true);
